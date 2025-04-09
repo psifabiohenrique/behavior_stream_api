@@ -1,0 +1,71 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+db.sqlite3
+
+# If you are using SQLite, you can add this line to ignore the database file
+*.sqlite3
+
+# If you are using Docker:
+*.env
+*.env.*
+docker-compose.override.yml
+
+# Pytest
+.pytest_cache/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+
+# System files
+.DS_Store
+Thumbs.db 
