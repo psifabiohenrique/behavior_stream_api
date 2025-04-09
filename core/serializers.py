@@ -4,7 +4,16 @@ from .models import User, Relationship
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id','name', 'email', 'role', 'is_active']
+        fields = ['id', 'name', 'email', 'role', 'password', 'is_active']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        user = self.Meta.model(**validated_data)
+        if password is not None:
+            user.set_password(password)
+        user.save()
+        return user
 
 class RelationshipSerializer(serializers.ModelSerializer):
     class Meta:

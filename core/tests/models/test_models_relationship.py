@@ -6,11 +6,13 @@ class RelationshipModelTests(TestCase):
     def setUp(self):
         """Set up users for testing relationships"""
         self.therapist = User.objects.create_user(
+            name='Test Therapist',
             email='therapist@example.com',
             password='testpass123',
             role='therapist'
         )
         self.patient = User.objects.create_user(
+            name='Test Patient',
             email='patient@example.com',
             password='testpass123',
             role='patient'
