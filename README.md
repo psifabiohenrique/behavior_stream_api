@@ -30,7 +30,7 @@ Este projeto é uma API desenvolvida para psicólogos gerenciarem os exercícios
 1. **Clone o Repositório**:
 
    ```bash
-   git clone <URL_DO_REPOSITORIO>
+   git clone https://github.com/psifabiohenrique/behavior_stream_api.git
    cd behavior_stream_api
    ```
 
