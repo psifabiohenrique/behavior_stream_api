@@ -34,19 +34,13 @@ Este projeto é uma API desenvolvida para psicólogos gerenciarem os exercícios
    cd behavior_stream_api
    ```
 
-2. **Instale as Dependências**:
-
-   ```bash
-   poetry install
-   ```
-
-3. **Inicie o Docker**:
+2. **Inicie o Docker**:
 
    ```bash
    docker-compose up --build
    ```
 
-4. **Acesse a API**:
+3. **Acesse a API**:
 
    A API estará disponível em `http://localhost:8000/api/`.
 
