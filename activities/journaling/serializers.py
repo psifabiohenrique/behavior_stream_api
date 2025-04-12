@@ -10,6 +10,8 @@ class JournalingSerializer(serializers.ModelSerializer):
             "title",
             "resume",
             "date",
+            "patient",
+            "is_active",
             "situation",
             "emotions",
             "thoughts",
