@@ -78,7 +78,6 @@ class JournalingAPITests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        print(response.data)
         self.assertEqual(response.data['detail'],
                          ErrorDetail(string='Authentication credentials were not provided.', code='not_authenticated'))
         # self.assertEqual(len(response.data), 1)
