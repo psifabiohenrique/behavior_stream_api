@@ -22,15 +22,16 @@ class JournalingViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_queryset(self):
-        user = self.request.user
+    # def get_queryset(self):
+    def get(self, request):
         queryset = super().get_queryset()
+        user = request.user
 
         if user.role == "therapist":
             patient_ids = Relationship.objects.filter(therapist=user).values_list(
                 "patient", flat=True
             )
-            queryset = queryset.filter(user_id__in=patient_ids)
+            queryset = queryset.filter(patient__in=patient_ids)
         if not AllowedActivity.objects.filter(
             patient=user, activity_type="journaling", is_allowed=True
         ).exists():

@@ -1,7 +1,6 @@
 from django.db import models
 from core.models.activity_base import ActivityBase
 
-# Create your models here.
 
 class Journaling(ActivityBase):
     situation = models.TextField(blank=True, null=True)
