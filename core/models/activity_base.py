@@ -20,4 +20,4 @@ class ActivityBase(models.Model):
         abstract = True
 
     def __str__(self):
-        return f"{self.patient.name} - {self.title}"
+        return f"{self.title} - {self.date}"
