@@ -25,9 +25,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated:
-            raise PermissionDenied()
-        elif self.request.user.role == "therapist":
+        if self.request.user.role == "therapist":
             return User.objects.filter(role="patient")
         else:
             raise PermissionDenied()
