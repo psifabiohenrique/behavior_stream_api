@@ -3,14 +3,8 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-
-from .models import User, Relationship
-from .serializers import (
-    UserSerializer,
-    RelationshipSerializer,
-)
-from .models.allowed_activity import AllowedActivity
-from .serializers import AllowedActivitySerializer
+from core.models import User
+from core.serializers import UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -52,23 +46,3 @@ class UserViewSet(viewsets.ModelViewSet):
         user.delete()
         return Response({'detail': 'User deleted'}, status=status.HTTP_204_NO_CONTENT)
 
-
-class RelationshipViewSet(viewsets.ModelViewSet):
-    queryset = Relationship.objects.all()
-    serializer_class = RelationshipSerializer
-    permission_classes = [IsAuthenticated]
-
-
-class AllowedActivityViewSet(viewsets.ModelViewSet):
-    queryset = AllowedActivity.objects.all()
-    serializer_class = AllowedActivitySerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == "patient":
-            return AllowedActivity.objects.filter(patient=user)
-        elif user.role == "therapist":
-            return AllowedActivity.objects.filter(therapist=user)
-        else:
-            return AllowedActivity.objects.none()

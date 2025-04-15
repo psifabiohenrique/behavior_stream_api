@@ -6,7 +6,6 @@ from core.models import User, Relationship
 
 class RelationshipAPITests(APITestCase):
     def setUp(self):
-        """Set up users and a relationship for testing"""
         self.therapist = User.objects.create_user(
             name="Test Therapist",
             email="therapist@example.com",
@@ -25,7 +24,6 @@ class RelationshipAPITests(APITestCase):
         self.client.force_authenticate(user=self.therapist)
 
     def test_list_relationships(self):
-        """Test listing relationships"""
         url = reverse("relationship-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -34,7 +32,6 @@ class RelationshipAPITests(APITestCase):
         self.assertEqual(response.data[0]["patient"], self.patient.id)
 
     def test_create_relationship(self):
-        """Test creating a new relationship"""
         new_patient = User.objects.create_user(
             name="Test Patient",
             email="newpatient@example.com",
@@ -48,7 +45,6 @@ class RelationshipAPITests(APITestCase):
         self.assertEqual(Relationship.objects.count(), 2)
 
     def test_update_relationship(self):
-        """Test updating an existing relationship"""
         new_therapist = User.objects.create_user(
             name="Test Therapist",
             email="newtherapist@example.com",
@@ -64,8 +60,6 @@ class RelationshipAPITests(APITestCase):
         self.assertEqual(self.relationship.therapist, new_therapist)
 
     def test_delete_relationship(self):
-        """Test deleting a relationship"""
-        # Create a new relationship to be deleted
         new_patient = User.objects.create_user(
             name="Test Patient 2",
             email="patient2@example.com", 

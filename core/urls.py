@@ -1,6 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, RelationshipViewSet, AllowedActivityViewSet
+from core.views.user import UserViewSet
+from core.views.relationship import RelationshipViewSet
+from core.views.allowed_activity import AllowedActivityViewSet
 from activities.journaling.views import JournalingViewSet
 
 
