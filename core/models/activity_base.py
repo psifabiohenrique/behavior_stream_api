@@ -1,5 +1,5 @@
 from django.db import models
-from .user import User
+from .user import User, RoleChoices
 
 
 class ActivityBase(models.Model):
@@ -10,7 +10,7 @@ class ActivityBase(models.Model):
         User,
         related_name="patient_activities",
         on_delete=models.CASCADE,
-        limit_choices_to={"role": "patient"}
+        limit_choices_to={"role": RoleChoices.patient}
     )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
+from core.models.user import RoleChoices
 from core.models.allowed_activity import AllowedActivity
 from core.serializers import AllowedActivitySerializer
 
@@ -12,9 +13,9 @@ class AllowedActivityViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role == "patient":
+        if user.role == RoleChoices.patient:
             return AllowedActivity.objects.filter(patient=user)
-        elif user.role == "therapist":
+        elif user.role == RoleChoices.therapist:
             return AllowedActivity.objects.filter(therapist=user)
         else:
             return AllowedActivity.objects.none()

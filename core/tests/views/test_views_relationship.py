@@ -1,7 +1,8 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
-from core.models import User, Relationship
+from core.models.user import User, RoleChoices
+from core.models.relationship import Relationship
 
 
 class RelationshipAPITests(APITestCase):
@@ -10,13 +11,13 @@ class RelationshipAPITests(APITestCase):
             name="Test Therapist",
             email="therapist@example.com",
             password="testpass123",
-            role="therapist",
+            role=RoleChoices.therapist,
         )
         self.patient = User.objects.create_user(
             name="Test Patient",
             email="patient@example.com",
             password="testpass123",
-            role="patient",
+            role=RoleChoices.patient,
         )
         self.relationship = Relationship.objects.create(
             therapist=self.therapist, patient=self.patient
@@ -28,18 +29,21 @@ class RelationshipAPITests(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["therapist"], self.therapist.id)
-        self.assertEqual(response.data[0]["patient"], self.patient.id)
+        self.assertEqual(response.data[0][RoleChoices.therapist], self.therapist.id)
+        self.assertEqual(response.data[0][RoleChoices.patient], self.patient.id)
 
     def test_create_relationship(self):
         new_patient = User.objects.create_user(
             name="Test Patient",
             email="newpatient@example.com",
             password="testpass123",
-            role="patient",
+            role=RoleChoices.patient,
         )
         url = reverse("relationship-list")
-        data = {"therapist": self.therapist.id, "patient": new_patient.id}
+        data = {
+            RoleChoices.therapist: self.therapist.id,
+            RoleChoices.patient: new_patient.id,
+        }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Relationship.objects.count(), 2)
@@ -49,10 +53,10 @@ class RelationshipAPITests(APITestCase):
             name="Test Therapist",
             email="newtherapist@example.com",
             password="testpass123",
-            role="therapist",
+            role=RoleChoices.therapist,
         )
         url = reverse("relationship-detail", args=[self.relationship.id])
-        data = {"therapist": new_therapist.id}
+        data = {RoleChoices.therapist: new_therapist.id}
         response = self.client.patch(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -62,23 +66,24 @@ class RelationshipAPITests(APITestCase):
     def test_delete_relationship(self):
         new_patient = User.objects.create_user(
             name="Test Patient 2",
-            email="patient2@example.com", 
+            email="patient2@example.com",
             password="testpass123",
-            role="patient"
+            role=RoleChoices.patient,
         )
         relationship_to_delete = Relationship.objects.create(
-            therapist=self.therapist,
-            patient=new_patient
+            therapist=self.therapist, patient=new_patient
         )
-        
+
         # Verify we have 2 relationships before deletion
         self.assertEqual(Relationship.objects.count(), 2)
-        
+
         url = reverse("relationship-detail", args=[relationship_to_delete.id])
         response = self.client.delete(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         # Verify we now have 1 relationship after deletion
         self.assertEqual(Relationship.objects.count(), 1)
         # Verify the correct relationship was deleted
-        self.assertFalse(Relationship.objects.filter(id=relationship_to_delete.id).exists())
+        self.assertFalse(
+            Relationship.objects.filter(id=relationship_to_delete.id).exists()
+        )

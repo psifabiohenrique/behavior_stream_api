@@ -3,7 +3,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from core.models import User
+from core.models.user import User, RoleChoices
 from core.serializers import UserSerializer
 
 
@@ -19,8 +19,8 @@ class UserViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        if self.request.user.role == "therapist":
-            return User.objects.filter(role="patient")
+        if self.request.user.role == RoleChoices.therapist:
+            return User.objects.filter(role=RoleChoices.patient)
         else:
             raise PermissionDenied()
     

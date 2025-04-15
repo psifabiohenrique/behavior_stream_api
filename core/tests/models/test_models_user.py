@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from core.models import User
+from core.models.user import User, RoleChoices
 
 
 class UserModelTests(TestCase):
@@ -9,7 +9,7 @@ class UserModelTests(TestCase):
         email = "test@example.com"
         password = "Testpass123"
         user = User.objects.create_user(
-            name="Test User", email=email, password=password, role="therapist"
+            name="Test User", email=email, password=password, role=RoleChoices.therapist
         )
 
         self.assertEqual(user.email, email)
@@ -19,7 +19,7 @@ class UserModelTests(TestCase):
         """Test the email for a new user is normalized"""
         email = "test@EXAMPLE.COM"
         user = User.objects.create_user(
-            name="Test User", email=email, password="test123", role="therapist"
+            name="Test User", email=email, password="test123", role=RoleChoices.therapist
         )
 
         self.assertEqual(user.email, email.lower())
@@ -28,7 +28,7 @@ class UserModelTests(TestCase):
         """Test creating user with invalid email raises error"""
         with self.assertRaises(ValueError):
             User.objects.create_user(
-                name="Test User", email=None, password="test123", role="therapist"
+                name="Test User", email=None, password="test123", role=RoleChoices.therapist
             )
 
         with self.assertRaises(ValidationError):
@@ -36,7 +36,7 @@ class UserModelTests(TestCase):
                 name="Test User",
                 email="invalid-email",
                 password="test123",
-                role="therapist",
+                role=RoleChoices.therapist,
             )
             user.full_clean()
 
@@ -55,7 +55,7 @@ class UserModelTests(TestCase):
             name="Test User",
             email="test@example.com",
             password="test123",
-            role="therapist",
+            role=RoleChoices.therapist,
         )
 
         self.assertEqual(str(user), user.email)

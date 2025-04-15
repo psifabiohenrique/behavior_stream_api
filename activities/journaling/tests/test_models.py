@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from activities.journaling.models import Journaling
-from core.models.user import User
+from core.models.user import User,RoleChoices
 
 
 class JournalingModelTests(TestCase):
@@ -10,7 +10,7 @@ class JournalingModelTests(TestCase):
             name="Test User",
             email="email@email.com",
             password="testpassword",
-            role="patient",
+            role=RoleChoices.patient,
         )
 
     def test_create_journaling_successful(self):

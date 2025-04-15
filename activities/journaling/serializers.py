@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from .models import Journaling
+from core.models.user import RoleChoices
 
 
 class JournalingSerializer(serializers.ModelSerializer):
@@ -10,7 +12,7 @@ class JournalingSerializer(serializers.ModelSerializer):
             "title",
             "resume",
             "date",
-            "patient",
+            RoleChoices.patient,
             "is_active",
             "situation",
             "emotions",

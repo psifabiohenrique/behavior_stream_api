@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
-from core.models import User
+from core.models.user import User, RoleChoices
 
 
 class UserAPITests(APITestCase):
@@ -10,13 +10,13 @@ class UserAPITests(APITestCase):
             name="Test User",
             email="testuser@example.com",
             password="testpass123",
-            role="therapist",
+            role=RoleChoices.therapist,
         )
         self.patient = User.objects.create_user(
             name="Test User patient",
             email="testuserpatient@example.com",
             password="testpass123",
-            role="patient",
+            role=RoleChoices.patient,
         )
         self.client.force_authenticate(user=self.therapist)
 
@@ -48,13 +48,13 @@ class UserAPITests(APITestCase):
             "name": "New User",
             "email": "newuser@example.com",
             "password": "newpass123",
-            "role": "patient",
+            "role": RoleChoices.patient,
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 3)
         self.assertEqual(
-            User.objects.get(email="newuser@example.com").role, "patient"
+            User.objects.get(email="newuser@example.com").role, RoleChoices.patient
         )
 
     def test_create_therapist(self):
@@ -65,13 +65,13 @@ class UserAPITests(APITestCase):
             "name": "New User",
             "email": "newuser@example.com",
             "password": "newpass123",
-            "role": "therapist",
+            "role": RoleChoices.therapist,
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 3)
         self.assertEqual(
-            User.objects.get(email="newuser@example.com").role, "therapist"
+            User.objects.get(email="newuser@example.com").role, RoleChoices.therapist
         )
 
     def test_create_user_with_wrong_email_must_fail(self):
@@ -82,7 +82,7 @@ class UserAPITests(APITestCase):
             "name": "New User",
             "email": "newuserexample.com",
             "password": "newpass123",
-            "role": "patient",
+            "role": RoleChoices.patient,
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -90,43 +90,43 @@ class UserAPITests(APITestCase):
 
     def test_update_user_therapist(self):
         url = reverse("user-detail", args=[self.therapist.id])
-        data = {"role": "patient"}
+        data = {"role": RoleChoices.patient}
         response = self.client.patch(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.therapist.refresh_from_db()
-        self.assertEqual(self.therapist.role, "patient")
+        self.assertEqual(self.therapist.role, RoleChoices.patient)
 
     def test_update_user_patient(self):
         self.client.force_authenticate(self.patient)
         url = reverse("user-detail", args=[self.patient.id])
-        data = {"role": "therapist"}
+        data = {"role": RoleChoices.therapist}
         response = self.client.patch(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.patient.refresh_from_db()
-        self.assertEqual(self.patient.role, "therapist")
+        self.assertEqual(self.patient.role, RoleChoices.therapist)
 
     def test_update_wrong_user_return_forbidden(self):
         url = reverse("user-detail", args=[self.patient.id])
-        data = {"role": "therapist"}
+        data = {"role": RoleChoices.therapist}
         response = self.client.patch(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.therapist.refresh_from_db()
         self.patient.refresh_from_db()
-        self.assertEqual(self.therapist.role, "therapist")
-        self.assertEqual(self.patient.role, "patient")
+        self.assertEqual(self.therapist.role, RoleChoices.therapist)
+        self.assertEqual(self.patient.role, RoleChoices.patient)
 
     def test_update_without_login_return_unauthorized(self):
         self.client.logout()
         url = reverse("user-detail", args=[self.patient.id])
-        data = {"role": "therapist"}
+        data = {"role": RoleChoices.therapist}
         response = self.client.patch(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.patient.refresh_from_db()
-        self.assertEqual(self.patient.role, "patient")
+        self.assertEqual(self.patient.role, RoleChoices.patient)
 
     def test_delete_user(self):
         url = reverse("user-detail", args=[self.therapist.id])

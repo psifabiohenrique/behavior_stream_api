@@ -4,7 +4,7 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 
 from activities.journaling.models import Journaling
-from core.models import User
+from core.models.user import User, RoleChoices
 from core.models import Relationship
 
 
@@ -22,7 +22,7 @@ class JournalingAPITests(APITestCase):
             name="Test User Patient",
             email="email@email.com",
             password="testpass123",
-            role="patient"
+            role=RoleChoices.patient
         )
         relationship = Relationship.objects.create(
             therapist=self.therapist,

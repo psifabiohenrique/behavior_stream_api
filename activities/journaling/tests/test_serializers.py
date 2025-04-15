@@ -1,6 +1,6 @@
 from django.test import TestCase
 from activities.journaling.serializers import JournalingSerializer
-from core.models.user import User
+from core.models.user import User, RoleChoices
 
 
 class JournalingSerializerTests(TestCase):
@@ -9,14 +9,14 @@ class JournalingSerializerTests(TestCase):
             name="test user",
             email="email@email.com",
             password="testpassword",
-            role="patient"
+            role=RoleChoices.patient
         )
 
     def test_journaling_serializer_valid_data(self):
         """Test journaling serializer with valid data"""
         data = {
             "title": "Daily Reflection",
-            "patient": str(self.patient.id),
+            RoleChoices.patient: str(self.patient.id),
             "resume": "A brief summary of the day.",
             "date": "2023-10-10",
             "situation": "Faced a challenging situation at work.",

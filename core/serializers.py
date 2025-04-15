@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import User, Relationship
+from .models.user import User, RoleChoices
+from .models.relationship import Relationship
 from .models.allowed_activity import AllowedActivity
 
 
@@ -21,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
 class RelationshipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Relationship
-        fields = ["id", "therapist", "patient", "created_at", "updated_at"]
+        fields = ["id", RoleChoices.therapist, RoleChoices.patient, "created_at", "updated_at"]
 
 
 class AllowedActivitySerializer(serializers.ModelSerializer):

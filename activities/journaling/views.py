@@ -6,6 +6,7 @@ from rest_framework.exceptions import PermissionDenied
 
 from .models import Journaling
 from .serializers import JournalingSerializer
+from core.models.user import RoleChoices
 from core.models.relationship import Relationship
 from core.models.allowed_activity import AllowedActivity
 
@@ -27,9 +28,9 @@ class JournalingViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         user = request.user
 
-        if user.role == "therapist":
+        if user.role == RoleChoices.therapist:
             patient_ids = Relationship.objects.filter(therapist=user).values_list(
-                "patient", flat=True
+                RoleChoices.patient, flat=True
             )
             queryset = queryset.filter(patient__in=patient_ids)
         if not AllowedActivity.objects.filter(
