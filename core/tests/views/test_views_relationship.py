@@ -63,7 +63,6 @@ class RelationshipAPITests(APITestCase):
     def test_list_without_user_login(self):
         url = reverse("relationship-list")
         response = self.client.get(url)
-        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_relationship(self):

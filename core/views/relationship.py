@@ -26,9 +26,3 @@ class RelationshipViewSet(viewsets.ModelViewSet):
             return super().create(request, *args, **kwargs)
         else:
             raise PermissionDenied()
-
-    def update(self, request, *args, **kwargs):
-        raise MethodNotAllowed("PUT/PATCH not allowed.")
-
-    def partial_update(self, request, *args, **kwargs):
-        raise MethodNotAllowed("PUT/PATCH not allowed.")
