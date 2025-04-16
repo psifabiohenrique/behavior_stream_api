@@ -1,42 +1,23 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
-from core.models.user import User, RoleChoices
+from core.models.user import RoleChoices
 from core.models.relationship import Relationship
+from core.tests.factories.relationship_factory import RelationshipFactory
+from core.tests.factories.user_factory import UserFactory
 
 
 class RelationshipAPITests(APITestCase):
     def setUp(self):
-        self.therapist = User.objects.create_user(
-            name="Test Therapist",
-            email="therapist@example.com",
-            password="testpass123",
-            role=RoleChoices.therapist,
-        )
-        self.other_therapist = User.objects.create_user(
-            name="Other Test Therapist",
-            email="othertherapist@example.com",
-            password="testpass123",
-            role=RoleChoices.therapist,
-        )
+        self.therapist = UserFactory(role=RoleChoices.therapist)
+        self.other_therapist = UserFactory(role=RoleChoices.therapist)
+        self.patient = UserFactory(role=RoleChoices.patient)
+        self.other_patient = UserFactory(role=RoleChoices.patient)
 
-        self.patient = User.objects.create_user(
-            name="Test Patient",
-            email="patient@example.com",
-            password="testpass123",
-            role=RoleChoices.patient,
-        )
-        self.other_patient = User.objects.create_user(
-            name="Other Test Patient",
-            email="otherpatient@example.com",
-            password="testpass123",
-            role=RoleChoices.patient,
-        )
-
-        self.relationship = Relationship.objects.create(
+        self.relationship = RelationshipFactory(
             therapist=self.therapist, patient=self.patient
         )
-        self.other_relationship = Relationship.objects.create(
+        self.other_relationship = RelationshipFactory(
             therapist=self.other_therapist, patient=self.other_patient
         )
 
@@ -67,12 +48,7 @@ class RelationshipAPITests(APITestCase):
 
     def test_create_relationship(self):
         self.client.force_authenticate(user=self.therapist)
-        new_patient = User.objects.create_user(
-            name="Test Patient",
-            email="newpatient@example.com",
-            password="testpass123",
-            role=RoleChoices.patient,
-        )
+        new_patient = UserFactory(role=RoleChoices.patient)
         url = reverse("relationship-list")
         data = {
             RoleChoices.therapist: self.therapist.id,
@@ -83,12 +59,7 @@ class RelationshipAPITests(APITestCase):
         self.assertEqual(Relationship.objects.count(), 3)
 
     def test_create_relationship_by_patient(self):
-        new_patient = User.objects.create_user(
-            name="Test Patient",
-            email="newpatient@example.com",
-            password="testpass123",
-            role=RoleChoices.patient,
-        )
+        new_patient = UserFactory(role=RoleChoices.patient)
         self.client.force_authenticate(user=new_patient)
         url = reverse("relationship-list")
         data = {
@@ -100,12 +71,7 @@ class RelationshipAPITests(APITestCase):
         self.assertEqual(Relationship.objects.count(), 2)
 
     def test_create_relationship_withou_login(self):
-        new_patient = User.objects.create_user(
-            name="Test Patient",
-            email="newpatient@example.com",
-            password="testpass123",
-            role=RoleChoices.patient,
-        )
+        new_patient = UserFactory(role=RoleChoices.patient)
         url = reverse("relationship-list")
         data = {
             RoleChoices.therapist: self.therapist.id,
@@ -118,12 +84,7 @@ class RelationshipAPITests(APITestCase):
     def test_partial_update_disabled(self):
         self.client.force_authenticate(user=self.therapist)
 
-        new_patient = User.objects.create_user(
-            name="Test Patient",
-            email="newpatient@example.com",
-            password="testpass123",
-            role=RoleChoices.patient,
-        )
+        new_patient = UserFactory(role=RoleChoices.patient)
         url = reverse("relationship-detail", args=[self.relationship.id])
         data = {RoleChoices.patient: new_patient.id}
         response = self.client.patch(url, data, format="json")
@@ -133,12 +94,7 @@ class RelationshipAPITests(APITestCase):
     def test_update_disabled(self):
         self.client.force_authenticate(user=self.therapist)
 
-        new_patient = User.objects.create_user(
-            name="Test Patient",
-            email="newpatient@example.com",
-            password="testpass123",
-            role=RoleChoices.patient,
-        )
+        new_patient = UserFactory(role=RoleChoices.patient)
         url = reverse("relationship-detail", args=[self.relationship.id])
         data = {
             RoleChoices.therapist: self.therapist.id,
@@ -151,13 +107,8 @@ class RelationshipAPITests(APITestCase):
     def test_delete_relationship_by_therapist(self):
         self.client.force_authenticate(user=self.therapist)
 
-        new_patient = User.objects.create_user(
-            name="Test Patient 2",
-            email="patient2@example.com",
-            password="testpass123",
-            role=RoleChoices.patient,
-        )
-        relationship_to_delete = Relationship.objects.create(
+        new_patient = UserFactory(role=RoleChoices.patient)
+        relationship_to_delete = RelationshipFactory(
             therapist=self.therapist, patient=new_patient
         )
 
@@ -178,13 +129,8 @@ class RelationshipAPITests(APITestCase):
     def test_delete_relationship_by_patient(self):
         self.client.force_authenticate(user=self.patient)
 
-        new_therapist = User.objects.create_user(
-            name="Test therapist 2",
-            email="therapist2@example.com",
-            password="testpass123",
-            role=RoleChoices.therapist,
-        )
-        relationship_to_delete = Relationship.objects.create(
+        new_therapist = UserFactory(role=RoleChoices.therapist)
+        relationship_to_delete = RelationshipFactory(
             therapist=new_therapist, patient=self.patient
         )
 
@@ -200,13 +146,8 @@ class RelationshipAPITests(APITestCase):
         )
 
     def test_delete_relationship_withou_login(self):
-        new_patient = User.objects.create_user(
-            name="Test Patient 2",
-            email="patient2@example.com",
-            password="testpass123",
-            role=RoleChoices.patient,
-        )
-        relationship_to_delete = Relationship.objects.create(
+        new_patient = UserFactory(role=RoleChoices.patient)
+        relationship_to_delete = RelationshipFactory(
             therapist=self.therapist, patient=new_patient
         )
 

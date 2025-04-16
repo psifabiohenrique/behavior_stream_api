@@ -2,29 +2,20 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from core.models.user import User, RoleChoices
+from core.tests.factories.user_factory import UserFactory
 
 
 class UserAPITests(APITestCase):
     def setUp(self):
-        self.therapist = User.objects.create_user(
-            name="Test User",
-            email="testuser@example.com",
-            password="testpass123",
-            role=RoleChoices.therapist,
-        )
-        self.patient = User.objects.create_user(
-            name="Test User patient",
-            email="testuserpatient@example.com",
-            password="testpass123",
-            role=RoleChoices.patient,
-        )
+        self.therapist = UserFactory(role=RoleChoices.therapist)
+        self.patient = UserFactory(role=RoleChoices.patient)
         self.client.force_authenticate(user=self.therapist)
 
     def test_list_users_with_therapist_authenticated_return_patient_list(self):
         url = reverse("user-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("testuserpatient@example.com", response.data[0]["email"])
+        self.assertIn(self.patient.email, response.data[0]["email"])
 
     def test_list_users_with_patient_authenticated_return_forbidden(self):
         self.client.force_authenticate(user=self.patient)

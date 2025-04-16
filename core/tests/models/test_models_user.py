@@ -19,7 +19,10 @@ class UserModelTests(TestCase):
         """Test the email for a new user is normalized"""
         email = "test@EXAMPLE.COM"
         user = User.objects.create_user(
-            name="Test User", email=email, password="test123", role=RoleChoices.therapist
+            name="Test User",
+            email=email,
+            password="test123",
+            role=RoleChoices.therapist,
         )
 
         self.assertEqual(user.email, email.lower())
@@ -28,7 +31,10 @@ class UserModelTests(TestCase):
         """Test creating user with invalid email raises error"""
         with self.assertRaises(ValueError):
             User.objects.create_user(
-                name="Test User", email=None, password="test123", role=RoleChoices.therapist
+                name="Test User",
+                email=None,
+                password="test123",
+                role=RoleChoices.therapist,
             )
 
         with self.assertRaises(ValidationError):
