@@ -1,25 +1,16 @@
 from django.test import TestCase
-from core.models import User, Relationship
+
+from core.models.user import RoleChoices
+from core.models import Relationship
+from core.tests.factories.user_factory import UserFactory
 
 
 class RelationshipModelTests(TestCase):
     def setUp(self):
-        """Set up users for testing relationships"""
-        self.therapist = User.objects.create_user(
-            name="Test Therapist",
-            email="therapist@example.com",
-            password="testpass123",
-            role="therapist",
-        )
-        self.patient = User.objects.create_user(
-            name="Test Patient",
-            email="patient@example.com",
-            password="testpass123",
-            role="patient",
-        )
+        self.therapist = UserFactory(role=RoleChoices.therapist)
+        self.patient = UserFactory(role=RoleChoices.patient)
 
     def test_create_relationship_successful(self):
-        """Test creating a new relationship is successful"""
         relationship = Relationship.objects.create(
             therapist=self.therapist, patient=self.patient
         )
@@ -30,7 +21,6 @@ class RelationshipModelTests(TestCase):
         self.assertIsNotNone(relationship.updated_at)
 
     def test_relationship_str(self):
-        """Test the relationship string representation"""
         relationship = Relationship.objects.create(
             therapist=self.therapist, patient=self.patient
         )
