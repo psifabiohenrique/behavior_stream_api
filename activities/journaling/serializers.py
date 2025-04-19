@@ -1,10 +1,11 @@
 from rest_framework import serializers
 
 from .models import Journaling
-from core.models.user import RoleChoices
 
 
 class JournalingSerializer(serializers.ModelSerializer):
+    patient = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Journaling
         fields = [
@@ -12,7 +13,7 @@ class JournalingSerializer(serializers.ModelSerializer):
             "title",
             "resume",
             "date",
-            RoleChoices.patient,
+            "patient",
             "is_active",
             "situation",
             "emotions",
@@ -25,3 +26,8 @@ class JournalingSerializer(serializers.ModelSerializer):
             "alternative_thoughts",
             "alternative_behaviors",
         ]
+        read_only_fields = ["id", "is_active"]
+
+    def create(self, validated_data):
+        validated_data["patient"] = self.context["request"].user
+        return Journaling.objects.create(**validated_data)

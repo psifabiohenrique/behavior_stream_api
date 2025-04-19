@@ -1,8 +1,5 @@
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import exceptions, viewsets
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import PermissionDenied
 
 from .models import Journaling
 from .serializers import JournalingSerializer
@@ -16,29 +13,20 @@ class JournalingViewSet(viewsets.ModelViewSet):
     serializer_class = JournalingSerializer
     permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_queryset(self):
+        user = self.request.user
 
-    # def get_queryset(self):
-    def get(self, request):
-        queryset = super().get_queryset()
-        user = request.user
+        if user.role == RoleChoices.patient:
+            permitted_ids = AllowedActivity.objects.filter(
+                relationship__patient=user
+            ).values_list("id", flat=True)
+            return Journaling.objects.filter(id__in=permitted_ids)
 
-        if user.role == RoleChoices.therapist:
+        elif user.role == RoleChoices.therapist:
             patient_ids = Relationship.objects.filter(therapist=user).values_list(
-                RoleChoices.patient, flat=True
+                "patient", flat=True
             )
-            queryset = queryset.filter(patient__in=patient_ids)
-        if not AllowedActivity.objects.filter(
-            patient=user, activity_type="journaling", is_allowed=True
-        ).exists():
-            raise PermissionDenied(
-                "Você não tem permissão para acessar esta atividade."
-            )
-        queryset = queryset.filter(patient=user)
+            [print(i) for i in patient_ids]
+            return Journaling.objects.filter(patient__in=patient_ids)
 
-        return queryset
+        raise exceptions.PermissionDenied()
