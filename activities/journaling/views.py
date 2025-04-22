@@ -1,4 +1,4 @@
-from rest_framework import exceptions, viewsets
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Journaling
@@ -28,5 +28,3 @@ class JournalingViewSet(viewsets.ModelViewSet):
             )
             [print(i) for i in patient_ids]
             return Journaling.objects.filter(patient__in=patient_ids)
-
-        raise exceptions.PermissionDenied()
