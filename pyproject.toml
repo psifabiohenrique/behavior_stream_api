@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "behavior_stream_api", from = "src"}]
+packages = [{include = "behavior_stream_api", from = "../"}]
 
 
 [tool.poetry.group.dev.dependencies]
