@@ -1,29 +1,38 @@
-# Behavior Stream API
+# Behavior Stream - Gestão de Atividades para Psicólogos
 
-Este projeto é uma API desenvolvida para psicólogos gerenciarem os exercícios de casa de seus pacientes. A API permite o registro de terapeutas e pacientes, e possibilita que os terapeutas designem atividades para os pacientes, bem como visualizem elas.
-
-## Tecnologias Utilizadas
-
-- **Django**: Framework web utilizado para o desenvolvimento do backend.
-- **Django Rest Framework**: Extensão do Django para a criação de APIs RESTful.
-- **Poetry**: Gerenciador de dependências e ambientes virtuais para Python.
-- **Docker**: Utilizado para containerizar a aplicação e facilitar o desenvolvimento e a implantação.
+Este projeto é uma aplicação completa para psicólogos gerenciarem as atividades de seus pacientes. A aplicação permite o registro de terapeutas e pacientes, e possibilita que os terapeutas designem atividades para os pacientes, bem como visualizem seus progressos.
 
 ## Estrutura do Projeto
 
-- **core**: Contém a lógica principal do aplicativo, incluindo modelos de usuário e relacionamentos.
-- **activities**: Gerencia diferentes tipos de atividades, como o registro de pensamentos diários.
-- **config**: Configurações do projeto Django.
-- **db.sqlite3**: Banco de dados SQLite utilizado para desenvolvimento.
-- **Dockerfile**: Arquivo de configuração para criar a imagem Docker do projeto.
-- **docker-compose.yml**: Arquivo de configuração para orquestrar contêineres Docker.
+Este repositório está organizado em duas partes principais:
+
+- **[backend](./backend/)**: Contém a API Django REST Framework para o gerenciamento de atividades.
+- **[frontend](./frontend/)**: Contém a aplicação React/TypeScript para interface do usuário.
+
+## Tecnologias Utilizadas
+
+### Backend
+- **Django**: Framework web utilizado para o desenvolvimento do backend.
+- **Django Rest Framework**: Extensão do Django para a criação de APIs RESTful.
+- **Poetry**: Gerenciador de dependências e ambientes virtuais para Python.
+- **PostgreSQL**: Banco de dados relacional para produção.
+
+### Frontend
+- **React**: Biblioteca JavaScript para construção de interfaces de usuário.
+- **TypeScript**: Superset do JavaScript que adiciona tipagem estática.
+- **Vite**: Ferramenta de build e desenvolvimento rápida.
+- **Axios**: Cliente HTTP para comunicação com a API.
+
+### Infraestrutura
+- **Docker**: Utilizado para containerizar a aplicação e facilitar o desenvolvimento e a implantação.
+- **Nginx**: Servidor web para rotear requisições entre frontend e backend.
 
 ## Configuração do Ambiente
 
 ### Pré-requisitos
 
 - **Docker**: Certifique-se de que o Docker está instalado e em execução.
-- **Poetry**: Instale o Poetry para gerenciar as dependências do projeto.
+- **Docker Compose**: Para orquestrar os contêineres.
 
 ### Instruções de Instalação
 
@@ -34,21 +43,43 @@ Este projeto é uma API desenvolvida para psicólogos gerenciarem os exercícios
    cd behavior_stream_api
    ```
 
-2. **Inicie o Docker**:
+2. **Configure o arquivo .env**:
+
+   Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+   ```
+   DJANGO_SECRET_KEY=sua_chave_secreta
+   DEBUG=True
+   ALLOWED_HOSTS=localhost,127.0.0.1
+   ENGINE=django.db.backends.postgresql
+   DB_NAME=behavior_stream
+   DB_USER=postgres
+   DB_PASSWORD=postgres
+   DB_HOST=db
+   DB_PORT=5432
+   ```
+
+3. **Inicie os contêineres Docker**:
 
    ```bash
    docker-compose up --build
    ```
 
-3. **Acesse a API**:
+4. **Acesse a aplicação**:
 
-   A API estará disponível em `http://localhost:8000/api/`.
+   - Frontend: `http://localhost/`
+   - API Backend: `http://localhost/api/`
+   - Painel Admin Django: `http://localhost/admin/`
 
-## Endpoints Principais
+## Desenvolvimento
 
-- **/api/users/**: Gerenciamento de usuários (terapeutas e pacientes).
-- **/api/relationships/**: Gerenciamento de relacionamentos entre terapeutas e pacientes.
-- **/api/activities/journaling/**: Gerenciamento de atividades de registro de pensamentos diários.
+### Backend
+
+Para mais informações sobre o desenvolvimento do backend, consulte o [README do backend](./backend/README.md).
+
+### Frontend
+
+Para mais informações sobre o desenvolvimento do frontend, consulte o [README do frontend](./frontend/README.md).
 
 ## Contribuição
 
@@ -56,4 +87,4 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull re
 
 ## Licença
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](./backend/LICENSE) para mais detalhes. 
