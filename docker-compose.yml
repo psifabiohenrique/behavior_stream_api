@@ -17,8 +17,8 @@ services:
              --timeout 120 
              --access-logfile - 
              --error-logfile -"
-    networks:
-    - app_net
+    # networks:
+    # - app_net
 
 
   db:
@@ -31,8 +31,8 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    networks:
-    - app_net
+    # networks:
+    # - app_net
 
 # Serviço que deveria buildar o projeto flutter e disponibilizá-lo para o nginx
   # frontend:
@@ -56,8 +56,8 @@ services:
     depends_on:
       - web
       # - frontend
-    networks:
-    - app_net
+    # networks:
+    # - app_net
 
 volumes:
   pgdata:
