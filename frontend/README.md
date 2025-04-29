@@ -1,54 +1,16 @@
-# Frontend do Behavior Stream
+# frontend_new
 
-Este é o frontend do projeto Behavior Stream, uma aplicação para gestão de atividades de pacientes por parte de psicólogos.
+A new Flutter project.
 
-## Tecnologias Utilizadas
+## Getting Started
 
-- React
-- TypeScript
-- Vite
-- Axios (para comunicação com a API)
-- React Router (para roteamento)
+This project is a starting point for a Flutter application.
 
-## Estrutura do Projeto
+A few resources to get you started if this is your first Flutter project:
 
-O frontend está estruturado da seguinte forma:
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-- `src/`: Contém o código fonte da aplicação
-  - `components/`: Componentes React reutilizáveis
-  - `pages/`: Páginas da aplicação
-  - `services/`: Serviços para comunicação com a API
-  - `hooks/`: Hooks personalizados
-  - `contexts/`: Contextos da aplicação (ex: autenticação)
-  - `types/`: Definições de tipos TypeScript
-  - `utils/`: Funções utilitárias
-
-## Desenvolvimento
-
-Para executar o projeto em modo de desenvolvimento:
-
-```bash
-# Instalar dependências
-npm install
-
-# Executar servidor de desenvolvimento
-npm run dev
-```
-
-## Integração com o Backend
-
-O frontend se comunica com o backend através do Nginx, que roteia as requisições adequadamente:
-
-- Frontend: `http://localhost/`
-- API Backend: `http://localhost/api/`
-- Painel Admin Django: `http://localhost/admin/`
-
-## Construção para Produção
-
-Para gerar os arquivos de produção:
-
-```bash
-npm run build
-```
-
-Os arquivos serão gerados na pasta `dist/` e serão servidos pelo Nginx no container Docker. 
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.

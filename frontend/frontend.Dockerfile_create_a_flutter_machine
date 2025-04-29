@@ -1,0 +1,15 @@
+# Usa a imagem do Flutter estável
+FROM ghcr.io/cirruslabs/flutter:latest
+
+# Define o diretório de trabalho
+WORKDIR /app
+
+# Copia o pubspec e resolve dependências
+COPY pubspec.yaml pubspec.lock ./
+RUN flutter pub get
+
+# Copia o resto do projeto
+COPY . .
+
+# Faz o build web
+RUN flutter build web

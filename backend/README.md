@@ -11,9 +11,9 @@ Esta é a API desenvolvida para psicólogos gerenciarem os exercícios de casa d
 
 ## Estrutura do Projeto
 
-- **core**: Contém a lógica principal do aplicativo, incluindo modelos de usuário e relacionamentos.
-- **activities**: Gerencia diferentes tipos de atividades, como o registro de pensamentos diários.
-- **config**: Configurações do projeto Django.
+  - **core**: Contém a lógica principal do aplicativo, incluindo modelos de usuário e relacionamentos.
+  - **activities**: Gerencia diferentes tipos de atividades, como o registro de pensamentos diários.
+  - **config**: Configurações do projeto Django.
 
 ## Desenvolvimento
 
