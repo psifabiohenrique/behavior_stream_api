@@ -26,14 +26,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, pk=None):
         if pk is None or str(request.user.id) == pk:
-            # Retorna os dados do próprio usuário autenticado
             user = request.user
         else:
-            # Apenas terapeutas podem acessar outros usuários
             if request.user.role != RoleChoices.therapist:
                 raise PermissionDenied()
 
-            # Verifica se o usuário existe
             user = User.objects.filter(pk=pk).first()
             if not user:
                 return Response(
@@ -41,7 +38,6 @@ class UserViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
-            # Terapeutas só podem acessar pacientes
             if user.role != RoleChoices.patient:
                 raise PermissionDenied()
 
