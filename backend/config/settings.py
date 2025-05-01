@@ -23,8 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 environ.Env.read_env(os.path.join(BASE_DIR.parent, ".env"))
 
 
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -33,6 +31,7 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
+print(DEBUG)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
@@ -119,7 +118,9 @@ DATABASES = {
         "ENGINE": env("ENGINE"),
         "NAME": env("DB_NAME"),  # Substitua pelo nome do seu banco de dados
         "USER": env("DB_USER"),  # Substitua pelo seu usuário do PostgreSQL
-        "PASSWORD": env("DB_PASSWORD"),  # Substitua pela sua senha do PostgreSQL
+        "PASSWORD": env(
+            "DB_PASSWORD"
+        ),  # Substitua pela sua senha do PostgreSQL
         "HOST": env("DB_HOST"),  # Ou o endereço do servidor do banco de dados
         "PORT": env("DB_PORT"),  # A porta padrão do PostgreSQL
     }

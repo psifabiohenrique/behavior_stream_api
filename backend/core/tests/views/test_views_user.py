@@ -1,7 +1,8 @@
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from django.urls import reverse
-from core.models.user import User, RoleChoices
+
+from core.models.user import RoleChoices, User
 from core.tests.factories.user_factory import UserFactory
 
 
@@ -45,7 +46,8 @@ class UserAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 3)
         self.assertEqual(
-            User.objects.get(email="newuser@example.com").role, RoleChoices.patient
+            User.objects.get(email="newuser@example.com").role,
+            RoleChoices.patient,
         )
 
     def test_create_therapist(self):
@@ -62,7 +64,8 @@ class UserAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 3)
         self.assertEqual(
-            User.objects.get(email="newuser@example.com").role, RoleChoices.therapist
+            User.objects.get(email="newuser@example.com").role,
+            RoleChoices.therapist,
         )
 
     def test_create_user_with_wrong_email_must_fail(self):
@@ -138,3 +141,61 @@ class UserAPITests(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(User.objects.count(), 2)
+
+    def test_retrieve_authenticated_user(self):
+        self.client.force_authenticate(user=self.therapist)
+
+        url = reverse("user-detail", args=[self.therapist.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.therapist.id)
+
+    def test_retrieve_patient_as_therapist(self):
+        self.client.force_authenticate(user=self.therapist)
+
+        url = reverse("user-detail", args=[self.patient.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.patient.id)
+
+    def test_retrieve_non_existent_patient(self):
+        self.client.force_authenticate(user=self.therapist)
+
+        url = reverse("user-detail", args=[1000])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_retrieve_patient_as_patient(self):
+        self.client.force_authenticate(user=self.patient)
+
+        url = reverse("user-detail", args=[self.patient.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.patient.id)
+
+    def test_retrieve_other_therapist_as_therapist_forbidden(self):
+        other_therapist = UserFactory(role=RoleChoices.therapist)
+        url = reverse("user-detail", args=[other_therapist.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_retrieve_patient_as_other_patient_forbidden(self):
+        self.client.force_authenticate(user=self.patient)
+        other_patient = UserFactory(role=RoleChoices.patient)
+        url = reverse("user-detail", args=[other_patient.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_retrieve_without_login_unauthorized(self):
+        self.client.logout()
+        url = reverse("user-detail", args=[self.patient.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_retrieve_authenticated_user_without_pk(self):
+        self.client.force_authenticate(user=self.therapist)
+
+        url = reverse("user-detail", args=[self.therapist.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], self.therapist.id)

@@ -1,9 +1,9 @@
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from core.models.user import User, RoleChoices
+from core.models.user import RoleChoices, User
 from core.serializers import UserSerializer
 
 
@@ -23,12 +23,35 @@ class UserViewSet(viewsets.ModelViewSet):
             return User.objects.filter(role=RoleChoices.patient)
         else:
             raise PermissionDenied()
-    
-    def partial_update(self, request, pk=None):
 
+    def retrieve(self, request, pk=None):
+        if pk is None or str(request.user.id) == pk:
+            # Retorna os dados do próprio usuário autenticado
+            user = request.user
+        else:
+            # Apenas terapeutas podem acessar outros usuários
+            if request.user.role != RoleChoices.therapist:
+                raise PermissionDenied()
+
+            # Verifica se o usuário existe
+            user = User.objects.filter(pk=pk).first()
+            if not user:
+                return Response(
+                    {"detail": "User not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            # Terapeutas só podem acessar pacientes
+            if user.role != RoleChoices.patient:
+                raise PermissionDenied()
+
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+
+    def partial_update(self, request, pk=None):
         if str(request.user.id) != pk:
             raise PermissionDenied
-        
+
         user = User.objects.filter(pk=pk).first()
 
         serializer = self.get_serializer(user, data=request.data, partial=True)
@@ -38,11 +61,11 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def destroy(self, request, pk=None):
-        
         if str(request.user.id) != pk:
             raise PermissionDenied
-        
+
         user = User.objects.filter(pk=pk).first()
         user.delete()
-        return Response({'detail': 'User deleted'}, status=status.HTTP_204_NO_CONTENT)
-
+        return Response(
+            {"detail": "User deleted"}, status=status.HTTP_204_NO_CONTENT
+        )

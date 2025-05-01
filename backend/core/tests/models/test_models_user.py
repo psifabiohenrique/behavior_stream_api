@@ -1,6 +1,7 @@
-from django.test import TestCase
 from django.core.exceptions import ValidationError
-from core.models.user import User, RoleChoices
+from django.test import TestCase
+
+from core.models.user import RoleChoices, User
 
 
 class UserModelTests(TestCase):
@@ -9,7 +10,10 @@ class UserModelTests(TestCase):
         email = "test@example.com"
         password = "Testpass123"
         user = User.objects.create_user(
-            name="Test User", email=email, password=password, role=RoleChoices.therapist
+            name="Test User",
+            email=email,
+            password=password,
+            role=RoleChoices.therapist,
         )
 
         self.assertEqual(user.email, email)
@@ -49,7 +53,9 @@ class UserModelTests(TestCase):
     def test_create_new_superuser(self):
         """Test creating a new superuser"""
         user = User.objects.create_superuser(
-            name="Test Super User", email="super@example.com", password="test123"
+            name="Test Super User",
+            email="super@example.com",
+            password="test123",
         )
 
         self.assertTrue(user.is_superuser)
@@ -64,4 +70,4 @@ class UserModelTests(TestCase):
             role=RoleChoices.therapist,
         )
 
-        self.assertEqual(str(user), user.email)
+        self.assertEqual(str(user), f"{user.name} - {user.email}")
