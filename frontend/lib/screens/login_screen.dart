@@ -3,7 +3,6 @@ import '../services/api_service.dart';
 import 'patient_home.dart';
 import 'psychologist_home.dart';
 
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -24,8 +23,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     final result = await ApiService.login(
-    _emailController.text,
-    _passwordController.text
+      _emailController.text,
+      _passwordController.text,
     );
 
     setState(() => _isLoading = false);
@@ -36,13 +35,14 @@ class _LoginScreenState extends State<LoginScreen> {
       if (role == 'patient') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder:(_) => const PatientHome()),
+          MaterialPageRoute(builder: (_) => const PatientHome()),
         );
       } else if (role == 'therapist') {
         Navigator.pushReplacement(
-          context, 
-          MaterialPageRoute(builder: (_) => const PsychologistHome()));
-      };
+          context,
+          MaterialPageRoute(builder: (_) => const PsychologistHome()),
+        );
+      }
     } else {
       setState(() => _error = result['message']);
     }
@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             if (_error != null) ...[
               Text(_error!, style: const TextStyle(color: Colors.red)),
-              const SizedBox(height: 10)
+              const SizedBox(height: 10),
             ],
             TextField(
               controller: _emailController,
@@ -70,12 +70,13 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: const InputDecoration(labelText: 'Senha'),
               obscureText: true,
             ),
-          const SizedBox(height: 20,),
-          _isLoading
-            ? const CircularProgressIndicator()
-            : ElevatedButton(
-              onPressed: _login,
-              child: const Text('Entrar')),
+            const SizedBox(height: 20),
+            _isLoading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                  onPressed: _login,
+                  child: const Text('Entrar'),
+                ),
           ],
         ),
       ),

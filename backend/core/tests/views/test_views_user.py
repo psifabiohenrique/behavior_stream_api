@@ -142,10 +142,10 @@ class UserAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(User.objects.count(), 2)
 
-    def test_retrieve_authenticated_user(self):
+    def test_retrieve_me(self):
         self.client.force_authenticate(user=self.therapist)
 
-        url = reverse("user-detail", args=[self.therapist.id])
+        url = reverse("user-me")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["id"], self.therapist.id)
@@ -164,14 +164,6 @@ class UserAPITests(APITestCase):
         url = reverse("user-detail", args=[1000])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_retrieve_patient_as_patient(self):
-        self.client.force_authenticate(user=self.patient)
-
-        url = reverse("user-detail", args=[self.patient.id])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["id"], self.patient.id)
 
     def test_retrieve_other_therapist_as_therapist_forbidden(self):
         other_therapist = UserFactory(role=RoleChoices.therapist)

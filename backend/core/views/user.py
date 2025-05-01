@@ -1,4 +1,5 @@
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -23,6 +24,11 @@ class UserViewSet(viewsets.ModelViewSet):
             return User.objects.filter(role=RoleChoices.patient)
         else:
             raise PermissionDenied()
+
+    @action(detail=False, methods=["get"])
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         if pk is None or str(request.user.id) == pk:
