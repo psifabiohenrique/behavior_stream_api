@@ -64,6 +64,6 @@ volumes:
   staticfiles:
   frontend_build: 
 
-networks:
-  app_net:
-    driver: bridge
+# networks:
+#   app_net:
+#     driver: bridge

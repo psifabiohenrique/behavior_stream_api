@@ -13,12 +13,13 @@ import "react-datepicker/dist/react-datepicker.css"; // Importa o estilo do reac
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { format } from "date-fns";
 import {
-  getAnalysisById,
-  createAnalysis,
-  updateAnalysis,
-  deleteAnalysis,
-} from "../services/analyses";
-import { getToken } from "../utils/secureStore";
+  getJournalingById,
+  createJournaling,
+  patchJournaling,
+  deleteJournaling,
+} from "../../services/journaling";
+import { getToken } from "../../utils/secureStore";
+import { Journaling } from "../../models/journaling";
 
 export default function CreateAnalysis() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -29,6 +30,8 @@ export default function CreateAnalysis() {
   const [behavior, setBehavior] = useState("");
   const [consequence, setConsequence] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [journalings, setJournalings] = useState<Journaling[]>([]);
+
   const router = useRouter();
   const { id } = useLocalSearchParams(); // Obtém o ID da análise (se estiver editando)
 
@@ -52,7 +55,7 @@ export default function CreateAnalysis() {
       if (id) {
         setIsEditing(true); // Define que estamos editando
         try {
-          const analysis = await getAnalysisById(id as string);
+          const analysis = await getJournalingById(id as string);
           setTitle(analysis.title);
           setDate(new Date(analysis.date)); // Define a data como um objeto Date
           setAntecedent(analysis.antecedent);
@@ -76,7 +79,7 @@ export default function CreateAnalysis() {
 
       if (isEditing) {
         // Atualiza a análise existente
-        await updateAnalysis(id as string, {
+        await patchJournaling(id as string, {
           title,
           date: formattedDate,
           antecedent,
@@ -85,7 +88,7 @@ export default function CreateAnalysis() {
         });
       } else {
         // Cria uma nova análise
-        await createAnalysis(
+        await createJournaling(
           title,
           formattedDate,
           antecedent,
@@ -106,7 +109,7 @@ export default function CreateAnalysis() {
   const handleDelete = async () => {
     try {
       if (id) {
-        await deleteAnalysis(id as string);
+        await deleteJournaling(id as string);
         router.push("/");
       }
     } catch (error) {
@@ -115,7 +118,7 @@ export default function CreateAnalysis() {
   }
 
   const confirmDelete = () => {
-    if (window.confirm("Tem certeza de que deseja excluir esta análise?")){
+    if (window.confirm("Tem certeza de que deseja excluir esta análise?")) {
       handleDelete();
     }
   }

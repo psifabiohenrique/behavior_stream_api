@@ -1,3 +1,4 @@
+import React from "react";
 import { Stack } from "expo-router";
 
 export default function RootLayout() {
@@ -13,16 +14,20 @@ export default function RootLayout() {
       />
       <Stack.Screen 
         name="index" 
-        options={{ title: "Clientes", headerShown: false }} 
+        options={{ title: "Home", headerShown: false }} 
       />
       <Stack.Screen 
-        name="create" 
-        options={{ title: "Criar Análise", headerShown: false }} 
+        name="patient/create" 
+        options={{ title: "Criar RPD", headerShown: false }} 
       />
       <Stack.Screen 
-      name="editClient" 
-      options={{ title: "Editar dados pessoais", headerShown: false }} 
-    />
+        name="therapist/dashboard"
+        options={{ title: "Dashboard", headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="patient/dashboard"
+        options={{ title: "Dashboard", headerShown: false }} 
+      />
     </Stack>
   );
 }

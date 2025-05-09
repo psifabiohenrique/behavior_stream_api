@@ -3,6 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-nativ
 import { useRouter } from "expo-router";
 import { login } from "../services/auth";
 import { saveToken } from "../utils/secureStore";
+import { Button } from "../components/Button";
+import { theme } from "../utils/theme";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,8 +15,8 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       const data = await login(email, password); // Chama o backend e retorna o token
-      if (data.access_token) {
-        await saveToken("userToken", data.access_token); // Salva o token no SecureStore
+      if (data.access) {
+        await saveToken("userToken", data.access); // Salva o token no SecureStore
         router.push("/"); // Redireciona para a tela principal
       } else {
         setError("Erro ao obter o token. Tente novamente.");
@@ -48,9 +50,7 @@ export default function Login() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Entrar</Text>
-      </TouchableOpacity>
+      <Button title="Entrar" onPress={handleLogin} />
       <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
         <Text style={styles.registerButtonText}>Criar nova conta</Text>
       </TouchableOpacity>
@@ -59,12 +59,17 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 16 },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 16 },
-  input: { borderWidth: 1, borderColor: "#ccc", padding: 12, marginBottom: 16, borderRadius: 8 },
-  button: { backgroundColor: "#6200ee", padding: 16, borderRadius: 8, alignItems: "center" },
-  buttonText: { color: "#fff", fontWeight: "bold" },
-  registerButton: { marginTop: 16, alignItems: "center" },
-  registerButtonText: { color: "#6200ee", fontWeight: "bold" },
-  error: { color: "red", marginBottom: 16 },
+  container: { flex: 1, justifyContent: "center", padding: theme.spacing.medium },
+  title: { fontSize: theme.fontSizes.xlarge, fontWeight: "bold", marginBottom: theme.spacing.medium },
+  input: {
+    borderWidth: 1,
+    borderColor: theme.colors.light,
+    padding: theme.spacing.medium,
+    marginBottom: theme.spacing.medium,
+    borderRadius: theme.spacing.small,
+    backgroundColor: theme.colors.white,
+  },
+  registerButton: { marginTop: theme.spacing.medium, alignItems: "center" },
+  registerButtonText: { color: theme.colors.primary, fontWeight: "bold" },
+  error: { color: theme.colors.danger, marginBottom: theme.spacing.medium },
 });

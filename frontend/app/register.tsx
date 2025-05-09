@@ -7,11 +7,13 @@ import {
   StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { createClient } from "@/services/clients";
+import { createUser } from "@/services/users";
+import { RoleChoices } from "@/models/roleChoices";
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState(RoleChoices.Patient);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +27,7 @@ export default function Register() {
     }
 
     try {
-      const client = await createClient(name, email, password);
+      const client = await createUser(name, email, password, role);
       // Redirecionar para a tela de login após cadastro bem-sucedido
       router.push("/login");
     } catch (err: any) {
@@ -72,6 +74,25 @@ export default function Register() {
         keyboardType="email-address"
         autoCapitalize="none"
       />
+
+      {/* Campo de Perfil */}
+      <View style={styles.roleContainer}>
+        <Text style={styles.roleLabel}>Perfil:</Text>
+        <View style={styles.radioContainer}>
+          <TouchableOpacity
+            style={[styles.radio, role === RoleChoices.Patient && styles.selectedRadio]}
+            onPress={() => setRole(RoleChoices.Patient)}
+          >
+            <Text style={styles.radioText}>Paciente</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.radio, role === RoleChoices.Therapist && styles.selectedRadio]}
+            onPress={() => setRole(RoleChoices.Therapist)}
+          >
+            <Text style={styles.radioText}>Psicólogo</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* Campo de Senha */}
       <View style={styles.passwordContainer}>
@@ -179,4 +200,33 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: "center",
   },
+  roleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    width: "100%",
+  },
+  roleLabel: {
+    // flex: 1,
+    marginRight: 16,
+    fontSize: 16,
+    // fontWeight: "bold",
+  },
+  radioContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  radio: {
+    marginRight: 8,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+  },
+  selectedRadio: {
+    backgroundColor: "#6200ee",
+  },
+  radioText: {
+    color: "#000",
+  }
 });

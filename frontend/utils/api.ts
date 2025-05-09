@@ -2,7 +2,7 @@ import axios from "axios";
 import { getToken } from "./secureStore";
 
 const api = axios.create({
-  baseURL: "http://192.168.1.2:8000", // Substitua pela URL correta
+  baseURL: "http://localhost/api", // Substitua pela URL correta
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
