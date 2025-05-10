@@ -23,7 +23,6 @@ export default function Main() {
         const token = await getToken("userToken");
         if (token) {
           const currentUser = await getUserData();
-          console.log(currentUser);
           if (currentUser instanceof User) {
             setAuthState({ token, user: currentUser });
 

@@ -9,31 +9,23 @@ import {
 import { useRouter } from "expo-router";
 import { getToken, deleteToken } from "../../utils/secureStore";
 import { getJournaling } from "@/services/journaling";
+import { theme } from "@/utils/theme";
 import { format } from "date-fns";
+import { Journaling } from "@/models/journaling";
 
-type Analysis = {
-  title: string;
-  id: number;
-  date: string;
-  antecedent: string;
-  behavior: string;
-  consequence: string;
-};
-
-export default function Main() {
+export default function Dashboard() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [analysis, setAnalysis] = useState<Analysis[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Estado para controlar o carregamento
+  const [journalings, setJournalings] = useState<Journaling[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Verifica se o usuário está logado
   useEffect(() => {
     const checkLoginStatus = async () => {
       const token = await getToken("userToken");
       if (token) {
         setIsLoggedIn(true);
       } else {
-        router.push("/login"); // Redireciona para a tela de login se não estiver logado
+        router.push("/login");
       }
     };
 
@@ -41,62 +33,50 @@ export default function Main() {
   }, []);
 
   useEffect(() => {
-    const fetchAnalysis = async (): Promise<Analysis[]> => {
+    const loadJournalings = async () => {
+      setIsLoading(true);
       try {
-        const result = await getJournaling();
-        return result.data || [];
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-        }
-        return [];
+        const data = await getJournaling();
+        setJournalings(data);
+      } catch (error) {
+        console.error("Erro ao carregar os journalings:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    const loadAnalysis = async () => {
-      setIsLoading(true); // Inicia o carregamento
-      const data = await fetchAnalysis();
-      setAnalysis(data);
-      setIsLoading(false); // Finaliza o carregamento
-    };
-
-    loadAnalysis();
+    loadJournalings();
   }, []);
 
-  useEffect(() => {
-  }, [analysis]);
-
-  useEffect(() => {
-  }, [isLoading]);
-
   const handleLogout = async () => {
-    await deleteToken("userToken"); // Remove o token do SecureStore
+    await deleteToken("userToken");
     setIsLoggedIn(false);
-    router.push("/login"); // Redireciona para a tela de login
+    router.push("/login");
   };
 
   const handleEditClient = () => {
-    router.push("/patient/editClient")
-  }
-  const handleViewDetails = (id: string) => {
-    router.push(`/patient/create?id=${id}`);
+    router.push("/register?isEditMode=true");
   };
 
-  const handleAddAnalysis = () => {
-    router.push("/patient/create");
+  const handleViewDetails = (id: number) => {
+    router.push(`/patient/journaling?id=${id}`);
   };
 
-  const renderAnalysisCard = ({ item }: { item: Analysis }) => {
-    // Converte a string de data para um objeto Date e formata
-    const formattedDate = format(new Date(item.date), "dd/MM/yyyy");
+  const handleAddJournaling = () => {
+    router.push("/patient/journaling");
+  };
+
+  const renderJournalingCard = ({ item }: { item: Journaling }) => {
+    const formattedDate = item.date ? format(new Date(item.date), "dd/MM/yyyy") : "Sem data";
 
     return (
       <View style={styles.card}>
+        <Text style={styles.title}>{item.title || "Sem título"}</Text>
         <Text style={styles.date}>{formattedDate}</Text>
-        <Text style={styles.summary}>Titulo: {item.title}</Text>
+        <Text style={styles.resume}>{item.resume || "Sem resumo"}</Text>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => handleViewDetails(item.id.toString())}
+          onPress={() => handleViewDetails(item.id!)}
         >
           <Text style={styles.buttonText}>Ver Detalhes</Text>
         </TouchableOpacity>
@@ -105,105 +85,138 @@ export default function Main() {
   };
 
   if (!isLoggedIn) {
-    return null; // Evita renderizar o conteúdo enquanto verifica o login
+    return null;
   }
 
   return (
     <View style={styles.container}>
-
       <View style={styles.headerButtons}>
-
         <TouchableOpacity style={styles.editButton} onPress={handleEditClient}>
           <Text style={styles.editButtonText}>Editar Conta</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Sair</Text>
         </TouchableOpacity>
-
       </View>
 
       {isLoading ? (
-        <Text style={styles.loadingText}>Carregando análises...</Text>
-      ) : analysis.length === 0 ? (
-        <Text style={styles.noAnalysisText}>
-          Não existem análises cadastradas ainda.
-        </Text>
+        <Text style={styles.loadingText}>Carregando journalings...</Text>
+      ) : journalings.length === 0 ? (
+        <Text style={styles.noDataText}>Nenhum journaling encontrado.</Text>
       ) : (
         <FlatList
-          data={analysis}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderAnalysisCard}
+          data={journalings}
+          keyExtractor={(item) => item.id!.toString()}
+          renderItem={renderJournalingCard}
           contentContainerStyle={styles.list}
         />
       )}
 
       <TouchableOpacity
         style={styles.floatingButton}
-        onPress={handleAddAnalysis}
+        onPress={handleAddJournaling}
       >
-        <Text style={styles.floatingButtonText}>+ Adicionar Análise</Text>
+        <Text style={styles.floatingButtonText}>+ Adicionar Journaling</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: {
+    flex: 1,
+    padding: theme.spacing.medium,
+    backgroundColor: theme.colors.light,
+  },
   headerButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 16
+    marginBottom: theme.spacing.medium,
   },
   card: {
-    padding: 16,
-    backgroundColor: "#fff",
-    marginBottom: 16,
-    borderRadius: 8,
+    padding: theme.spacing.medium,
+    backgroundColor: theme.colors.white,
+    marginBottom: theme.spacing.medium,
+    borderRadius: theme.borderRadius.medium,
+    shadowColor: theme.colors.black,
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
   },
-  date: { fontWeight: "bold", marginBottom: 8 },
-  summary: { marginBottom: 8 },
-  button: { backgroundColor: "#6200ee", padding: 8, borderRadius: 4 },
-  buttonText: { color: "#fff" },
+  title: {
+    fontSize: theme.fontSizes.large,
+    fontWeight: "bold",
+    marginBottom: theme.spacing.small,
+  },
+  date: {
+    fontSize: theme.fontSizes.small,
+    color: theme.colors.dark,
+    marginBottom: theme.spacing.small,
+  },
+  resume: {
+    fontSize: theme.fontSizes.medium,
+    color: theme.colors.dark,
+    marginBottom: theme.spacing.medium,
+  },
+  button: {
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.small,
+    borderRadius: theme.borderRadius.small,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: theme.colors.white,
+    fontSize: theme.fontSizes.medium,
+    fontWeight: "bold",
+  },
   floatingButton: {
     position: "absolute",
-    bottom: 16,
-    right: 16,
-    backgroundColor: "#6200ee",
-    padding: 16,
+    bottom: theme.spacing.medium,
+    right: theme.spacing.medium,
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.medium,
     borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  floatingButtonText: { color: "#fff", fontWeight: "bold" },
-  logoutButton: {
-    alignSelf: "flex-end",
-    backgroundColor: "#ff4d4d",
-    padding: 8,
-    borderRadius: 4,
-    marginBottom: 16,
-  },
-  logoutButtonText: { color: "#fff", fontWeight: "bold" },
-  editButton: {
-    alignSelf: "flex-end",
-    backgroundColor: "#4CAF50",
-    padding: 8,
-    borderRadius: 4,
-    marginBottom: 16
-  },
-  editButtonText: {
-    color: "#fff",
-    fontWeight: "bold"
-  },
-  list: { paddingBottom: 16 },
-  noAnalysisText: {
-    textAlign: "center",
-    color: "red",
-    fontSize: 16,
-    marginTop: 32,
+  floatingButtonText: {
+    color: theme.colors.white,
+    fontSize: theme.fontSizes.large,
+    fontWeight: "bold",
   },
   loadingText: {
     textAlign: "center",
-    color: "#666",
-    fontSize: 16,
-    marginTop: 32,
+    color: theme.colors.warning,
+    fontSize: theme.fontSizes.medium,
+    marginTop: theme.spacing.large,
+  },
+  noDataText: {
+    textAlign: "center",
+    color: theme.colors.danger,
+    fontSize: theme.fontSizes.medium,
+    marginTop: theme.spacing.large,
+  },
+  list: {
+    paddingBottom: theme.spacing.medium,
+  },
+  logoutButton: {
+    alignSelf: "flex-end",
+    backgroundColor: theme.colors.danger,
+    padding: theme.spacing.small,
+    borderRadius: 4,
+    marginBottom: theme.spacing.medium,
+  },
+  logoutButtonText: { color: theme.colors.white, fontWeight: "bold" },
+  editButton: {
+    alignSelf: "flex-end",
+    backgroundColor: theme.colors.secondary,
+    padding: theme.spacing.small,
+    borderRadius: 4,
+    marginBottom: theme.spacing.medium,
+  },
+  editButtonText: {
+    color: theme.colors.white,
+    fontWeight: "bold"
   },
 });

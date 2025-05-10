@@ -11,21 +11,21 @@ export const getJournaling = async () => {
 
 // Falta implementar essa rota na API
 export const getJournalingById = async (id: string) => {
-  const response = await api.get(`/activities/journaling/${id}`);
+  const response = await api.get(`/activities/journaling/${id}/`);
   return response.data; // Retorna os detalhes de uma análise funcional
 };
 
 export const createJournaling = async (data: Journaling) => {
-  const response = await api.post("/activities/journaling", data);
+  const response = await api.post("/activities/journaling/", data);
   return response.data; // Retorna os dados da análise criada
 };
 
 export const patchJournaling = async (id: string, data: Journaling) => {
-  const response = await api.patch(`/activities/journaling/${id}`, data);
+  const response = await api.patch(`/activities/journaling/${id}/`, data);
   return response.data; // Retorna os dados da análise atualizada
 };
 
 export const deleteJournaling = async (id: string) => {
-  const response = await api.delete(`/activities/journaling/${id}`);
+  const response = await api.delete(`/activities/journaling/${id}/`);
   return response.data; // Retorna a confirmação da exclusão
 };

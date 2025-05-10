@@ -47,7 +47,6 @@ export async function getUserData(): Promise<User | null> {
   try {
     if (Platform.OS === "web") {
       const userData = localStorage.getItem("currentUser");
-      console.log(`secureStore: userData -> ${userData}`);
       return userData ? new User(JSON.parse(userData)) : null; // Converte para instância de User
     } else {
       const userData = await SecureStore.getItemAsync("currentUser");

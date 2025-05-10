@@ -39,7 +39,8 @@ export const patchCurrentUser = async (
   password: string | null = null,
   role: RoleChoices | null = null
 ) => {
-  const data = { name, email, password, role }
-  const response = await api.patch("/users", data)
-  return response.data
-}
+  const currentUser = await getCurrentUser(); // Obtém o ID do usuário atual
+  const data = { name, email, password, role };
+  const response = await api.patch(`/users/${currentUser.id}/`, data); // Inclui o ID na URL
+  return response.data;
+};

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,37 +6,73 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { createUser } from "@/services/users";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { createUser, getCurrentUser, patchCurrentUser } from "@/services/users";
 import { RoleChoices } from "@/models/roleChoices";
+import { Button } from "@/components/Button";
+import { theme } from "@/utils/theme";
+import { getToken } from "@/utils/secureStore";
 
 export default function Register() {
+  const { isEditMode } = useLocalSearchParams();
+  const editMode = isEditMode === "true";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState(RoleChoices.Patient);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(""); // Estado para exibir mensagens de erro
+  const [error, setError] = useState("");
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleRegister = async () => {
-    if (password !== confirmPassword) {
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const token = await getToken("userToken");
+      if (token) {
+        setIsLoggedIn(true);
+      } else {
+        router.push("/login"); // Redireciona para a tela de login se não estiver logado
+      }
+    };
+    checkLoginStatus();
+  }, []);
+
+  useEffect(() => {
+    if (editMode) {
+      (async () => {
+        try {
+          const user = await getCurrentUser();
+          setName(user.name);
+          setEmail(user.email);
+          setRole(user.role);
+        } catch (err) {
+          setError("Erro ao carregar dados do usuário.");
+        }
+      })();
+    }
+  }, [editMode]);
+
+  const handleSubmit = async () => {
+    if (!editMode && password !== confirmPassword) {
       setError("As senhas não coincidem.");
       return;
     }
 
     try {
-      const client = await createUser(name, email, password, role);
-      // Redirecionar para a tela de login após cadastro bem-sucedido
-      router.push("/login");
+      if (editMode) {
+        await patchCurrentUser(name, email, password || null, role);
+        handleBack();
+      } else {
+        await createUser(name, email, password, role);
+        router.push("/login");
+      }
     } catch (err: any) {
       if (err.response) {
-        // Verifica o código de status do erro
         if (err.response.status === 409) {
           setError("E-mail já cadastrado. Tente usar outro e-mail.");
         } else {
-          setError("Erro ao criar conta. Tente novamente mais tarde.");
+          setError("Erro ao processar solicitação. Tente novamente mais tarde.");
         }
       } else {
         setError("Erro de conexão. Verifique sua internet.");
@@ -44,20 +80,23 @@ export default function Register() {
     }
   };
 
-  const handleGoToLogin = () => {
-    // Redirecionar para a tela de login
-    router.push("/login");
+  const handleBack = () => {
+    if (role === RoleChoices.Therapist) {
+      router.push("/therapist/dashboard");
+    } else {
+      router.push("/patient/dashboard");
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Criar Conta</Text>
-      <Text style={styles.subtitle}>Preencha os campos para se cadastrar</Text>
 
-      {/* Exibe mensagem de erro, se houver */}
+
+      <Text style={styles.title}>{editMode ? "Editar Perfil" : "Criar Conta"}</Text>
+      <Text style={styles.subtitle}>{editMode ? "Atualize seus dados" : "Preencha os campos para se cadastrar"}</Text>
+
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      {/* Campo de Nome */}
       <TextInput
         style={styles.input}
         placeholder="Nome"
@@ -65,7 +104,6 @@ export default function Register() {
         onChangeText={setName}
       />
 
-      {/* Campo de E-mail */}
       <TextInput
         style={styles.input}
         placeholder="E-mail"
@@ -75,7 +113,6 @@ export default function Register() {
         autoCapitalize="none"
       />
 
-      {/* Campo de Perfil */}
       <View style={styles.roleContainer}>
         <Text style={styles.roleLabel}>Perfil:</Text>
         <View style={styles.radioContainer}>
@@ -94,43 +131,33 @@ export default function Register() {
         </View>
       </View>
 
-      {/* Campo de Senha */}
-      <View style={styles.passwordContainer}>
+      {!editMode && (
         <TextInput
-          style={[styles.input, styles.passwordInput]}
+          style={styles.input}
           placeholder="Senha"
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
         />
-        <TouchableOpacity
-          style={styles.showPasswordButton}
-          onPress={() => setShowPassword(!showPassword)}
-        >
-          <Text style={styles.showPasswordText}>
-            {showPassword ? "Ocultar" : "Mostrar"}
-          </Text>
+      )}
+
+      {!editMode && (
+        <TextInput
+          style={styles.input}
+          placeholder="Confirme a senha"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry={!showPassword}
+        />
+      )}
+
+      <Button title={editMode ? "Salvar" : "Criar Conta"} onPress={handleSubmit} />
+
+      {!editMode && (
+        <TouchableOpacity onPress={() => router.push("/login")}>
+          <Text style={styles.loginLinkText}>Já tenho uma conta</Text>
         </TouchableOpacity>
-      </View>
-
-      {/* Campo de Confirmação de Senha */}
-      <TextInput
-        style={styles.input}
-        placeholder="Confirme a senha"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry={!showPassword}
-      />
-
-      {/* Botão Criar Conta */}
-      <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-        <Text style={styles.registerButtonText}>Criar Conta</Text>
-      </TouchableOpacity>
-
-      {/* Link Já Tenho uma Conta */}
-      <TouchableOpacity onPress={handleGoToLogin}>
-        <Text style={styles.loginLinkText}>Já tenho uma conta</Text>
-      </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -140,93 +167,64 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    padding: 16,
+    backgroundColor: theme.colors.light,
+    padding: theme.spacing.medium,
   },
   title: {
-    fontSize: 24,
+    fontSize: theme.fontSizes.xlarge,
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: theme.spacing.small,
   },
   subtitle: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 24,
+    fontSize: theme.fontSizes.medium,
+    color: theme.colors.dark,
+    marginBottom: theme.spacing.large,
   },
   input: {
     width: "100%",
-    padding: 12,
+    padding: theme.spacing.medium,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    marginBottom: 16,
-    backgroundColor: "#fff",
-  },
-  passwordContainer: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  passwordInput: {
-    flex: 1,
-  },
-  showPasswordButton: {
-    marginLeft: 8,
-  },
-  showPasswordText: {
-    color: "#6200ee",
-    fontWeight: "bold",
-  },
-  registerButton: {
-    width: "100%",
-    padding: 16,
-    backgroundColor: "#6200ee",
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  registerButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  loginLinkText: {
-    color: "#6200ee",
-    fontSize: 14,
-    fontWeight: "bold",
+    borderColor: theme.colors.dark,
+    borderRadius: theme.borderRadius.medium,
+    marginBottom: theme.spacing.medium,
+    backgroundColor: theme.colors.white,
   },
   error: {
-    color: "red",
-    marginBottom: 16,
+    color: theme.colors.danger,
+    marginBottom: theme.spacing.medium,
     textAlign: "center",
   },
   roleContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: theme.spacing.medium,
     width: "100%",
   },
   roleLabel: {
-    // flex: 1,
-    marginRight: 16,
-    fontSize: 16,
-    // fontWeight: "bold",
+    marginRight: theme.spacing.medium,
+    fontSize: theme.fontSizes.medium,
   },
   radioContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   radio: {
-    marginRight: 8,
-    padding: 8,
+    marginRight: theme.spacing.small,
+    padding: theme.spacing.small,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
+    borderColor: theme.colors.dark,
+    borderRadius: theme.borderRadius.small,
   },
   selectedRadio: {
-    backgroundColor: "#6200ee",
+    backgroundColor: theme.colors.primary,
   },
   radioText: {
-    color: "#000",
-  }
+    color: theme.colors.black,
+  },
+  loginLinkText: {
+    color: theme.colors.primary,
+    fontSize: theme.fontSizes.small,
+    paddingTop: theme.spacing.medium,
+    fontWeight: "bold",
+  },
 });

@@ -10,15 +10,11 @@ export default function RootLayout() {
       />
       <Stack.Screen 
         name="register" 
-        options={{ title: "Cadastro", headerShown: false }} 
+        options={{ title: "Cadastro", headerShown: true }} 
       />
       <Stack.Screen 
         name="index" 
         options={{ title: "Home", headerShown: false }} 
-      />
-      <Stack.Screen 
-        name="patient/create" 
-        options={{ title: "Criar RPD", headerShown: false }} 
       />
       <Stack.Screen 
         name="therapist/dashboard"
@@ -27,6 +23,10 @@ export default function RootLayout() {
       <Stack.Screen 
         name="patient/dashboard"
         options={{ title: "Dashboard", headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="patient/journaling"
+        options={{ title: "RPD", headerShown: true }} 
       />
     </Stack>
   );

@@ -23,8 +23,15 @@ const spacing = {
     large: 24,
 };
 
+const borderRadius = {
+    small: 4,
+    medium: 8,
+    large: 16,
+};
+
 export const theme = {
     colors,
     fontSizes,
     spacing,
+    borderRadius,
 };
