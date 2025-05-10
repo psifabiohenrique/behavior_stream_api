@@ -1,5 +1,6 @@
 from django.db import models
-from .user import User, RoleChoices
+
+from .user import RoleChoices, User
 
 
 class ActivityBase(models.Model):

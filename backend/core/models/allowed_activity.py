@@ -1,7 +1,7 @@
 from django.db import models
 
-from core.models.relationship import Relationship
 from activities.models import ActivityChoices
+from core.models.relationship import Relationship
 
 
 class AllowedActivity(models.Model):
@@ -19,4 +19,4 @@ class AllowedActivity(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.relationship.therapist.email} -> {self.relationship.patient.email} | {self.activity_type}"
+        return f"{self.relationship.therapist.email} -> {self.relationship.patient.email} | {self.activity_type}" # noqa E501

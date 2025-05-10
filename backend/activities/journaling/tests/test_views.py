@@ -1,14 +1,15 @@
-from rest_framework.test import APITestCase
-from rest_framework import status
 from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
 
+from activities.models import ActivityChoices
 from core.models.user import RoleChoices
 from core.tests.factories import (
-    UserFactory,
-    RelationshipFactory,
     AllowedActivityFactory,
+    RelationshipFactory,
+    UserFactory,
 )
-from activities.models import ActivityChoices
+
 from .journaling_factory import JournalingFactory
 
 
@@ -26,16 +27,15 @@ class JournalingViewSetTestCase(APITestCase):
 
         # Permissão para o journaling original
         self.allowed_activity = AllowedActivityFactory(
-            relationship=self.relationship, activity_type=ActivityChoices.journaling
+            relationship=self.relationship,
+            activity_type=ActivityChoices.journaling,
         )
 
         # Journaling que o paciente criou
         self.journaling = JournalingFactory(patient=self.patient)
 
         # Journaling que o outro paciente criou
-        self.other_journaling = JournalingFactory(
-            patient=self.other_patient
-        )
+        self.other_journaling = JournalingFactory(patient=self.other_patient)
 
     def test_patient_can_list_only_permitted_journalings(self):
         self.client.force_authenticate(user=self.patient)
@@ -90,6 +90,21 @@ class JournalingViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         print(response.data)
         self.assertEqual(response.data["patient"], self.patient.id)
+
+    def test_patient_cannot_create_journaling_without_permission(self):
+        self.client.force_authenticate(user=self.other_patient)
+        url = reverse("journaling-list")
+        data = {
+            "title": "Tentativa sem permissão",
+            "content": "Conteúdo qualquer",
+        }
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn("detail", response.data)
+        self.assertEqual(
+            response.data["detail"],
+            "Você não tem permissão para criar este Journaling.",
+        )
 
     def test_patient_can_update_own_journaling(self):
         self.client.force_authenticate(user=self.patient)
