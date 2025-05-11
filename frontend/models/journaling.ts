@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 export class Journaling {
     id?: number;
     title?: string;
@@ -22,7 +24,7 @@ export class Journaling {
             this.id = data.id;
             this.title = data.title;
             this.resume = data.resume;
-            this.date = data.date;
+            this.date = format(data.date, "YYYY-MM-DD");
             this.patient = data.patient;
             this.is_active = data.is_active;
             this.situation = data.situation;

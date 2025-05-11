@@ -17,13 +17,14 @@ import {
 import { getToken } from "../../utils/secureStore";
 import { theme } from "../../utils/theme";
 import { FormField } from "../../components/FormField";
-
-
+import { DatePickerField } from "../../components/DatePickerField";
 
 export default function CreateJournaling() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
+    resume: "",
+    date: "",
     situation: "",
     emotions: "",
     thoughts: "",
@@ -61,6 +62,8 @@ export default function CreateJournaling() {
           const journaling = await getJournalingById(id as string);
           setFormData({
             title: journaling.title || "",
+            resume: journaling.resume || "",
+            date: journaling.date || format(new Date(), "YYYY-MM-DD"),
             situation: journaling.situation || "",
             emotions: journaling.emotions || "",
             thoughts: journaling.thoughts || "",
@@ -73,7 +76,7 @@ export default function CreateJournaling() {
             alternativeBehaviors: journaling.alternative_behaviors || "",
           });
         } catch (error) {
-          console.error("Erro ao carregar o journaling:", error);
+          console.error("Erro ao carregar a RPD:", error);
         }
       }
     };
@@ -87,7 +90,6 @@ export default function CreateJournaling() {
     try {
       const journalingData = {
         ...formData,
-        date: format(new Date(), "yyyy-MM-dd"),
       };
 
       if (isEditing) {
@@ -97,7 +99,7 @@ export default function CreateJournaling() {
       }
       router.push("/patient/dashboard");
     } catch (error) {
-      console.error("Erro ao salvar o journaling:", error);
+      console.error("Erro ao salvar a RDP:", error);
     }
   };
 
@@ -111,6 +113,7 @@ export default function CreateJournaling() {
   // Update your fields array to use this type
   const fields: { label: string; field: FormDataKeys }[] = [
     { label: "Título", field: "title" },
+    { label: "Resumo", field: "resume" },
     { label: "Situação", field: "situation" },
     { label: "Emoções", field: "emotions" },
     { label: "Pensamentos", field: "thoughts" },
@@ -129,17 +132,23 @@ export default function CreateJournaling() {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>
-        {isEditing ? "Editar Journaling" : "Criar Journaling"}
-      </Text>
+      <Text style={styles.title}>{isEditing ? "Editar RPD" : "Criar RPD"}</Text>
+
+      <DatePickerField
+        label="Data"
+        value={formData.date}
+        onChange={(value) => handleChange("date", value)}
+      />
 
       {fields.map(({ label, field }) => (
-        <FormField
-          key={field}
-          label={label}
-          value={formData[field]}
-          onChangeText={(value) => handleChange(field, value)}
-        />
+        field !== "date" && (
+          <FormField
+            key={field}
+            label={label}
+            value={formData[field]}
+            onChangeText={(value) => handleChange(field, value)}
+          />
+        )
       ))}
 
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -153,7 +162,11 @@ export default function CreateJournaling() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: theme.spacing.medium },
-  title: { fontSize: theme.fontSizes.xlarge, fontWeight: "bold", marginBottom: theme.spacing.medium },
+  title: {
+    fontSize: theme.fontSizes.xlarge,
+    fontWeight: "bold",
+    marginBottom: theme.spacing.medium,
+  },
   saveButton: {
     backgroundColor: theme.colors.primary,
     padding: theme.spacing.medium,
