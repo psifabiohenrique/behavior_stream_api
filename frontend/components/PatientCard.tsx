@@ -7,12 +7,14 @@ import { User } from "../models/user";
 type PatientCardProps = {
     patient: User;
     onViewActivities?: () => void;
+    onAllowActivities?: () => void;
     onRemove?: () => void;
 };
 
 export const PatientCard: React.FC<PatientCardProps> = ({ 
     patient, 
     onViewActivities, 
+    onAllowActivities,
     onRemove 
 }) => {
     return (
@@ -40,6 +42,14 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                         onPress={onViewActivities}
                     >
                         <Text style={styles.primaryButtonText}>Ver Atividades</Text>
+                    </TouchableOpacity>
+                )}
+                {onAllowActivities && (
+                    <TouchableOpacity
+                        style={[styles.button, styles.secondaryButton]}
+                        onPress={onAllowActivities}
+                    >
+                        <Text style={styles.primaryButtonText}>Gerenciar Atividades</Text>
                     </TouchableOpacity>
                 )}
                 {onRemove && (
@@ -101,6 +111,9 @@ const styles = StyleSheet.create({
     },
     primaryButton: {
         backgroundColor: theme.colors.primary,
+    },
+    secondaryButton: {
+        backgroundColor: theme.colors.secondary,
     },
     primaryButtonText: {
         color: theme.colors.white,

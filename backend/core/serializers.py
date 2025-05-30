@@ -26,7 +26,42 @@ class RelationshipSerializer(serializers.ModelSerializer):
 
 
 class AllowedActivitySerializer(serializers.ModelSerializer):
+    activity_label = serializers.SerializerMethodField()
+    activity_description = serializers.SerializerMethodField()
+    patient_name = serializers.SerializerMethodField()
+    patient_email = serializers.SerializerMethodField()
+    
     class Meta:
         model = AllowedActivity
-        fields = "__all__"
-        read_only_fields = ("created_at",)
+        fields = [
+            "id", 
+            "relationship", 
+            "activity_type", 
+            "activity_label",
+            "activity_description",
+            "is_allowed", 
+            "created_at",
+            "patient_name",
+            "patient_email"
+        ]
+        read_only_fields = ("created_at", "activity_label", "activity_description", "patient_name", "patient_email")
+
+    def get_activity_label(self, obj):
+        """Retorna o label legível da atividade"""
+        return obj.get_activity_type_display()
+
+    def get_activity_description(self, obj):
+        """Retorna descrição da atividade"""
+        from activities.models import ActivityChoices
+        descriptions = {
+            ActivityChoices.journaling: "Registro de pensamentos, emoções e comportamentos para análise funcional"
+        }
+        return descriptions.get(obj.activity_type, "Atividade terapêutica")
+
+    def get_patient_name(self, obj):
+        """Retorna o nome do paciente"""
+        return obj.relationship.patient.name
+
+    def get_patient_email(self, obj):
+        """Retorna o email do paciente"""
+        return obj.relationship.patient.email

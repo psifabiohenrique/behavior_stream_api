@@ -1,3 +1,4 @@
+import { User } from "@/models/user";
 import api from "../utils/api";
 import { RoleChoices } from "@/models/roleChoices";
 
@@ -16,16 +17,35 @@ export interface Relationship {
   patient_details?: Patient;
 }
 
-export const getPatients = async (): Promise<Relationship[]> => {
+export const getPatients = async (): Promise<User[]> => {
   const response = await api.get("/users/list_patients/", {
     headers: {
       "Content-Type": "application/json",
-    }
+    },
   });
   return response.data;
 };
 
-export const createRelationship = async (patientId: number, therapistId: number): Promise<Relationship> => {
+export const getRelationships = async (): Promise<Relationship[]> => {
+  const response = await api.get("/relationships/", {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+export const getPatientRelationship = async (
+  patientId: number
+): Promise<Relationship> => {
+  const response = await api.get(`/relationships/${patientId}/`);
+  return response.data;
+};
+
+export const createRelationship = async (
+  patientId: number,
+  therapistId: number
+): Promise<Relationship> => {
   const data = {
     therapist: therapistId,
     patient: patientId,
@@ -40,7 +60,9 @@ export const createRelationship = async (patientId: number, therapistId: number)
   return response.data;
 };
 
-export const deleteRelationship = async (relationshipId: number): Promise<void> => {
+export const deleteRelationship = async (
+  relationshipId: number
+): Promise<void> => {
   await api.delete(`/relationships/${relationshipId}/`, {
     headers: {
       "Content-Type": "application/json",

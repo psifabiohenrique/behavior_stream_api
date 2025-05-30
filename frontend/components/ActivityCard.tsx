@@ -3,23 +3,24 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { format } from "date-fns";
 import { theme } from "../utils/theme";
 import { Card } from "./Card";
+import { Journaling } from "@/models/journaling";
 
-type Analysis = {
-    title: string;
-    id: number;
-    date: string;
-    antecedent: string;
-    behavior: string;
-    consequence: string;
-};
+// type Analysis = {
+//     title: string;
+//     id: number;
+//     date: string;
+//     antecedent: string;
+//     behavior: string;
+//     consequence: string;
+// };
 
 type ActivityCardProps = {
-    activity: Analysis;
+    activity: Journaling;
     onViewDetails: () => void;
 };
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onViewDetails }) => {
-    const formattedDate = format(new Date(activity.date), "dd/MM/yyyy");
+    const formattedDate = activity.date ? format(new Date(activity.date), "dd/MM/yyyy") : "Sem data";
 
     return (
         <Card>

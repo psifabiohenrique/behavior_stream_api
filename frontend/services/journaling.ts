@@ -1,12 +1,9 @@
 import { Journaling } from "@/models/journaling";
 import api from "../utils/api";
-import {getToken} from "../utils/secureStore"
 
 export const getJournaling = async () => {
-
   const response = await api.get("/activities/journaling/");
   return response.data; // Retorna a lista de análises funcionais
-
 };
 
 // Falta implementar essa rota na API
@@ -28,4 +25,8 @@ export const patchJournaling = async (id: string, data: Journaling) => {
 export const deleteJournaling = async (id: string) => {
   const response = await api.delete(`/activities/journaling/${id}/`);
   return response.data; // Retorna a confirmação da exclusão
+};
+
+export const createAlloedActivity = async () => {
+  // TODO: Implementar quando necessário
 };

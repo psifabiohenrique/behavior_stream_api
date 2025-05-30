@@ -11,7 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { getToken, deleteToken } from "../../utils/secureStore";
 import { getJournaling } from "@/services/journaling";
-import { getPatients, deleteRelationship, Relationship } from "@/services/relationships";
+import { getPatients, deleteRelationship, getRelationships, Relationship } from "@/services/relationships";
 import { theme } from "@/utils/theme";
 import { SectionHeader } from "@/components/SectionHeader";
 import { PatientCard } from "@/components/PatientCard";
@@ -21,21 +21,23 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { SearchPatientModal } from "@/components/SearchPatientModal";
 import { StatsCard } from "@/components/StatsCard";
 import { User } from "@/models/user";
+import { Journaling } from "@/models/journaling";
 
-type Analysis = {
-    title: string;
-    id: number;
-    date: string;
-    antecedent: string;
-    behavior: string;
-    consequence: string;
-};
+// type Analysis = {
+//     title: string;
+//     id: number;
+//     date: string;
+//     antecedent: string;
+//     behavior: string;
+//     consequence: string;
+// };
 
 export default function TherapistDashboard() {
     const router = useRouter();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [analysis, setAnalysis] = useState<Analysis[]>([]);
-    const [patients, setPatients] = useState<Relationship[]>([]);
+    const [analysis, setAnalysis] = useState<Journaling[]>([]);
+    const [patients, setPatients] = useState<User[]>([]);
+    const [relationships, setRelationships] = useState<Relationship[]>([]);
     const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(true);
     const [isLoadingPatients, setIsLoadingPatients] = useState(true);
     const [showAddPatientModal, setShowAddPatientModal] = useState(false);
@@ -78,8 +80,12 @@ export default function TherapistDashboard() {
     const loadPatients = async () => {
         setIsLoadingPatients(true);
         try {
-            const relationships = await getPatients();
-            setPatients(relationships);
+            const [patientsData, relationshipsData] = await Promise.all([
+                getPatients(),
+                getRelationships()
+            ]);
+            setPatients(patientsData);
+            setRelationships(relationshipsData);
         } catch (error: any) {
             console.error("Erro ao carregar pacientes:", error);
             if (error.response?.status === 401) {
@@ -105,7 +111,18 @@ export default function TherapistDashboard() {
         router.push(`/therapist/patient-activities?patientId=${patientId}` as any);
     };
 
-    const handleRemovePatient = (relationshipId: number, patientName: string) => {
+    const handleAllowActivities = (patientId: number) => {
+        router.push(`/therapist/allow-activities?patientId=${patientId}` as any);
+    };
+
+    const handleRemovePatient = (patientId: number, patientName: string) => {
+        // Encontrar o relacionamento correspondente
+        const relationship = relationships.find(r => r.patient === patientId);
+        if (!relationship) {
+            Alert.alert("Erro", "Relacionamento não encontrado.");
+            return;
+        }
+
         Alert.alert(
             "Remover Paciente",
             `Tem certeza que deseja remover ${patientName} da sua lista de pacientes?`,
@@ -114,7 +131,7 @@ export default function TherapistDashboard() {
                 { 
                     text: "Remover", 
                     style: "destructive",
-                    onPress: () => removePatient(relationshipId)
+                    onPress: () => removePatient(relationship.id)
                 }
             ]
         );
@@ -139,23 +156,24 @@ export default function TherapistDashboard() {
         <PatientCard
             patient={item}
             onViewActivities={() => handleViewPatientActivities(item.id!)}
+            onAllowActivities={() => handleAllowActivities(item.id!)}
             onRemove={() => handleRemovePatient(item.id!, item.name!)}
         />
     );
 
-    const renderActivityCard = ({ item }: { item: Analysis }) => (
+    const renderActivityCard = ({ item }: { item: Journaling }) => (
         <ActivityCard
             activity={item}
-            onViewDetails={() => handleViewDetails(item.id.toString())}
+            onViewDetails={() => handleViewDetails(item.id!.toString())}
         />
     );
 
     // Calcular estatísticas
     const totalPatients = patients.length;
-    const activePatients = patients.filter(p => p.patient_details?.is_active).length;
+    const activePatients = patients.filter(p => p.is_active!).length;
     const totalActivities = analysis.length;
     const recentActivities = analysis.filter(a => {
-        const activityDate = new Date(a.date);
+        const activityDate = a.date ? new Date(a.date) : "Sem data";
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         return activityDate >= weekAgo;
@@ -224,7 +242,7 @@ export default function TherapistDashboard() {
                 ) : (
                     <FlatList
                         data={patients}
-                        keyExtractor={(item) => item.id.toString()}
+                        keyExtractor={(item) => item.id!.toString()}
                         renderItem={renderPatientCard}
                         scrollEnabled={false}
                         showsVerticalScrollIndicator={false}
@@ -248,7 +266,7 @@ export default function TherapistDashboard() {
                 ) : (
                     <FlatList
                         data={analysis.slice(0, 5)} // Mostrar apenas as 5 mais recentes
-                        keyExtractor={(item) => item.id.toString()}
+                        keyExtractor={(item) => item.id!.toString()}
                         renderItem={renderActivityCard}
                         scrollEnabled={false}
                         showsVerticalScrollIndicator={false}
