@@ -21,6 +21,14 @@ export default function RootLayout() {
         options={{ title: "Dashboard", headerShown: false }} 
       />
       <Stack.Screen 
+        name="therapist/all-activities"
+        options={{ title: "Todas as Atividades", headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="therapist/patient-activities"
+        options={{ title: "Atividades do Paciente", headerShown: false }} 
+      />
+      <Stack.Screen 
         name="patient/dashboard"
         options={{ title: "Dashboard", headerShown: false }} 
       />

@@ -26,17 +26,17 @@ export default function Register() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      const token = await getToken("userToken");
-      if (token) {
-        setIsLoggedIn(true);
-      } else {
-        router.push("/login"); // Redireciona para a tela de login se não estiver logado
-      }
-    };
-    checkLoginStatus();
-  }, []);
+  // useEffect(() => {
+  //   const checkLoginStatus = async () => {
+  //     const token = await getToken("userToken");
+  //     if (token) {
+  //       setIsLoggedIn(true);
+  //     } else {
+  //       router.push("/login"); // Redireciona para a tela de login se não estiver logado
+  //     }
+  //   };
+  //   checkLoginStatus();
+  // }, []);
 
   useEffect(() => {
     if (editMode) {

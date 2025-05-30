@@ -29,6 +29,7 @@ export default function Login() {
 
   const handleRegister = () => {
     router.push("/register"); // Redireciona para a tela de registro
+    console.log("Fui para registro0")
   };
 
   return (

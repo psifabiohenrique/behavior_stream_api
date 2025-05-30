@@ -44,3 +44,30 @@ export const patchCurrentUser = async (
   const response = await api.patch(`/users/${currentUser.id}/`, data); // Inclui o ID na URL
   return response.data;
 };
+
+export const searchUsersByEmail = async (email: string) => {
+  const response = await api.get(`/users/search/?email=${encodeURIComponent(email)}`, {
+    headers: {
+      "Content-Type": "application/json",
+    }
+  });
+  return response.data;
+};
+
+export const searchUsersByName = async (name: string) => {
+  const response = await api.get(`/users/search/?name=${encodeURIComponent(name)}`, {
+    headers: {
+      "Content-Type": "application/json",
+    }
+  });
+  return response.data;
+};
+
+export const searchUsers = async (query: string) => {
+  const response = await api.get(`/users/search/?q=${encodeURIComponent(query)}`, {
+    headers: {
+      "Content-Type": "application/json",
+    }
+  });
+  return response.data;
+};
