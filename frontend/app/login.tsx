@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { login } from "../services/auth";
+import { AuthService } from "../services/auth";
 import { saveToken } from "../utils/secureStore";
 import { Button } from "../components/Button";
 import { theme } from "../utils/theme";
@@ -14,7 +14,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const data = await login(email, password); // Chama o backend e retorna o token
+      const data = await AuthService.login(email, password); // Chama o backend e retorna o token
       if (data.access) {
         await saveToken("userToken", data.access); // Salva o token no SecureStore
         router.push("/"); // Redireciona para a tela principal
