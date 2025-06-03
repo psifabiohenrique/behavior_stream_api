@@ -17,6 +17,8 @@ import { Button } from "./Button";
 import { createUser } from "../services/users";
 import { createRelationship } from "../services/relationships";
 import { RoleChoices } from "../models/roleChoices";
+import { getUserData } from "@/utils/secureStore";
+import { router } from "expo-router";
 
 type AddPatientModalProps = {
     visible: boolean;
@@ -46,7 +48,12 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
             const newUser = await createUser(name, email, password, RoleChoices.Patient);
             
             // Criar o relacionamento
-            await createRelationship(newUser.id);
+            const user = await getUserData()
+            if (!user) {
+                router.push("/login");
+                throw new Error("Usuário não encontrado")
+            };
+            await createRelationship(newUser.id, user.id!);
             
             Alert.alert("Sucesso", "Paciente adicionado com sucesso!");
             
