@@ -22,6 +22,7 @@ import { SearchPatientModal } from "@/components/SearchPatientModal";
 import { StatsCard } from "@/components/StatsCard";
 import { User } from "@/models/user";
 import { Journaling } from "@/models/journaling";
+import { getUserById } from "@/services/users";
 
 
 export default function TherapistDashboard() {
@@ -58,7 +59,7 @@ export default function TherapistDashboard() {
         setIsLoadingAnalysis(true);
         try {
             const result = await getJournaling();
-            setAnalysis(result.data || []);
+            setAnalysis(result || []);
         } catch (error: any) {
             console.error("Erro ao carregar análises:", error);
             if (error.response?.status === 401) {
@@ -120,8 +121,8 @@ export default function TherapistDashboard() {
             `Tem certeza que deseja remover ${patientName} da sua lista de pacientes?`,
             [
                 { text: "Cancelar", style: "cancel" },
-                { 
-                    text: "Remover", 
+                {
+                    text: "Remover",
                     style: "destructive",
                     onPress: () => removePatient(relationship.id)
                 }
@@ -153,12 +154,15 @@ export default function TherapistDashboard() {
         />
     );
 
-    const renderActivityCard = ({ item }: { item: Journaling }) => (
-        <ActivityCard
+    const renderActivityCard = ({ item }: { item: Journaling }) => {
+        const patient = patients.find(p => p.id === item.patient);
+
+        return (<ActivityCard
             activity={item}
             onViewDetails={() => handleViewDetails(item.id!.toString())}
-        />
-    );
+            user={patient}
+        />)
+    };
 
     // Calcular estatísticas
     const totalPatients = patients.length;

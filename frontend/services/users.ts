@@ -1,5 +1,6 @@
 import api from "../utils/api";
 import { RoleChoices } from "@/models/roleChoices";
+import { User } from "@/models/user";
 import { saveUserData } from "@/utils/secureStore";
 
 export const createUser = async (name: string, email: string, password: string, role: RoleChoices = RoleChoices.Patient) => {
@@ -32,6 +33,13 @@ export const getCurrentUser = async () => {
   await saveUserData(user); // Salva os dados completos do usuário
   return user;
 };
+
+export const getUserById = async (userId: number): Promise<User> => {
+  const response = await api.get(`/users/${userId}`, {
+    headers: { "Content-Type": "application/json" }
+  });
+  return response.data;
+}
 
 export const patchCurrentUser = async (
   name: string | null = null,

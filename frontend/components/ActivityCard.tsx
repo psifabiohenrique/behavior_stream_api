@@ -4,22 +4,16 @@ import { format } from "date-fns";
 import { theme } from "../utils/theme";
 import { Card } from "./Card";
 import { Journaling } from "@/models/journaling";
-
-// type Analysis = {
-//     title: string;
-//     id: number;
-//     date: string;
-//     antecedent: string;
-//     behavior: string;
-//     consequence: string;
-// };
+import { getUserById } from "@/services/users";
+import { User } from "@/models/user";
 
 type ActivityCardProps = {
     activity: Journaling;
     onViewDetails: () => void;
+    user?: User | null;
 };
 
-export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onViewDetails }) => {
+export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onViewDetails, user = null }) => {
     const formattedDate = activity.date ? format(new Date(activity.date), "dd/MM/yyyy") : "Sem data";
 
     return (
@@ -28,15 +22,23 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onViewDeta
                 <Text style={styles.title}>{activity.title}</Text>
                 <Text style={styles.date}>{formattedDate}</Text>
             </View>
-            
+            {user! ?
+                <View style={styles.content}>
+                    <Text style={styles.summary} numberOfLines={0}>
+                        {user.name || "Sem descrição disponível"}
+                    </Text>
+                </View>
+                : null}
+
             <View style={styles.content}>
                 <Text style={styles.summary} numberOfLines={2}>
                     {activity.behavior || "Sem descrição disponível"}
                 </Text>
             </View>
-            
-            <TouchableOpacity 
-                style={styles.button} 
+
+
+            <TouchableOpacity
+                style={styles.button}
                 onPress={onViewDetails}
             >
                 <Text style={styles.buttonText}>Ver Detalhes</Text>
