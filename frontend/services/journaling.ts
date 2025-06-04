@@ -6,6 +6,12 @@ export const getJournaling = async () => {
   return response.data; // Retorna a lista de análises funcionais
 };
 
+export const getJournalingByPatientId = async (patientId: string) => {
+  const response = await api.get(`/activities/journaling/get_journaling_by_patient/?patient_id=${patientId}`);
+  console.log("Journaling activities for patient retrieved:", response.data);
+  return response.data;
+};
+
 // Falta implementar essa rota na API
 export const getJournalingById = async (id: string) => {
   const response = await api.get(`/activities/journaling/${id}/`);

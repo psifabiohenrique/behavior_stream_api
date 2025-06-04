@@ -12,23 +12,17 @@ import { theme } from "@/utils/theme";
 import { ActivityCard } from "@/components/ActivityCard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { EmptyState } from "@/components/EmptyState";
+import { Journaling } from "@/models/journaling";
 
-type Analysis = {
-    title: string;
-    id: number;
-    date: string;
-    antecedent: string;
-    behavior: string;
-    consequence: string;
-};
 
 export default function AllActivities() {
     const router = useRouter();
-    const [analysis, setAnalysis] = useState<Analysis[]>([]);
+    const [analysis, setAnalysis] = useState<Journaling[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         loadAnalysis();
+        console.log(analysis)
     }, []);
 
     const loadAnalysis = async () => {
@@ -54,10 +48,10 @@ export default function AllActivities() {
         router.back();
     };
 
-    const renderActivityCard = ({ item }: { item: Analysis }) => (
+    const renderActivityCard = ({ item }: { item: Journaling }) => (
         <ActivityCard
             activity={item}
-            onViewDetails={() => handleViewDetails(item.id.toString())}
+            onViewDetails={() => handleViewDetails(item.id!.toString())}
         />
     );
 
@@ -81,7 +75,7 @@ export default function AllActivities() {
             ) : (
                 <FlatList
                     data={analysis}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => item.id!.toString()}
                     renderItem={renderActivityCard}
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}

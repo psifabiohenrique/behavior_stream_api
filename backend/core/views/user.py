@@ -1,12 +1,12 @@
+from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Q
 
-from core.models.user import RoleChoices, User
 from core.models.relationship import Relationship
+from core.models.user import RoleChoices, User
 from core.serializers import UserSerializer
 
 
@@ -26,26 +26,27 @@ class UserViewSet(viewsets.ModelViewSet):
             return User.objects.filter(role=RoleChoices.patient)
         else:
             raise PermissionDenied()
-    @action(detail=False, methods=["get"])
+
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def me(self, request):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=False, methods=["get"])
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def list_patients(self, request):
         """
         Lista todos os pacientes para terapeutas.
         """
         if request.user.role != RoleChoices.therapist:
             raise PermissionDenied("Apenas terapeutas podem listar pacientes")
-        
+
         relationships = Relationship.objects.filter(therapist=request.user.id)
-        patients_ids = relationships.values_list('patient_id', flat=True)
+        patients_ids = relationships.values_list("patient_id", flat=True)
         queryset = User.objects.filter(id__in=patients_ids)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=["get"])
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def search(self, request):
         """
         Busca pacientes por email ou nome.
@@ -53,21 +54,23 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         if request.user.role != RoleChoices.therapist:
             raise PermissionDenied("Apenas terapeutas podem buscar pacientes")
-        
+
         # Obtém os parâmetros de busca
-        email = request.query_params.get('email', '').strip()
-        name = request.query_params.get('name', '').strip()
-        query = request.query_params.get('q', '').strip()  # Busca geral
-        
+        email = request.query_params.get("email", "").strip()
+        name = request.query_params.get("name", "").strip()
+        query = request.query_params.get("q", "").strip()  # Busca geral
+
         if not email and not name and not query:
             return Response(
-                {"detail": "É necessário fornecer pelo menos um parâmetro de busca (email, name ou q)"},
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    "detail": "É necessário fornecer pelo menos um parâmetro de busca (email, name ou q)"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        
+
         # Constrói a query de busca
         queryset = User.objects.filter(role=RoleChoices.patient)
-        
+
         if query:
             # Busca geral por nome ou email
             queryset = queryset.filter(
@@ -81,10 +84,10 @@ class UserViewSet(viewsets.ModelViewSet):
             if name:
                 filters |= Q(name__icontains=name)
             queryset = queryset.filter(filters)
-        
+
         # Limita os resultados para evitar sobrecarga
         queryset = queryset[:20]
-        
+
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -126,6 +129,4 @@ class UserViewSet(viewsets.ModelViewSet):
 
         user = User.objects.filter(pk=pk).first()
         user.delete()
-        return Response(
-            {"detail": "User deleted"}, status=status.HTTP_204_NO_CONTENT
-        )
+        return Response({"detail": "User deleted"}, status=status.HTTP_204_NO_CONTENT)

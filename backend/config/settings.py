@@ -30,7 +30,7 @@ import environ
 env = environ.Env(
     DEBUG=(bool, True),  # Padrão True para desenvolvimento
     DJANGO_SECRET_KEY=(str, 'django-insecure-dev-key-change-in-production-123456789'),
-    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', '0.0.0.0']),
+    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', '0.0.0.0', '172.27.240.1', '192.168.1.5']),
     ENGINE=(str, 'django.db.backends.sqlite3'),
     DB_NAME=(str, 'db.sqlite3'),
     DB_USER=(str, ''),
@@ -104,6 +104,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:80",
     "http://localhost:8081",
     "http://localhost",
+    "http://0.0.0.0",
+    "http://172.27.240.1:8000",
 ]
 
 # Em desenvolvimento, permite CORS de qualquer origem se DEBUG estiver ativo

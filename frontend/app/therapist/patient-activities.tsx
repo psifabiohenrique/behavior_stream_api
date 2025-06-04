@@ -7,26 +7,17 @@ import {
     TouchableOpacity,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { getJournaling } from "@/services/journaling";
+import { getJournalingByPatientId } from "@/services/journaling";
 import { theme } from "@/utils/theme";
 import { ActivityCard } from "@/components/ActivityCard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { EmptyState } from "@/components/EmptyState";
-
-type Analysis = {
-    title: string;
-    id: number;
-    date: string;
-    antecedent: string;
-    behavior: string;
-    consequence: string;
-    patient?: number;
-};
+import { Journaling } from "@/models/journaling";
 
 export default function PatientActivities() {
     const router = useRouter();
     const { patientId } = useLocalSearchParams();
-    const [analysis, setAnalysis] = useState<Analysis[]>([]);
+    const [analysis, setAnalysis] = useState<Journaling[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [patientName, setPatientName] = useState("");
 
@@ -39,17 +30,21 @@ export default function PatientActivities() {
     const loadPatientAnalysis = async () => {
         setIsLoading(true);
         try {
-            const result = await getJournaling();
+            const result = await getJournalingByPatientId(patientId.toString());
             // Filtrar atividades do paciente específico
-            const patientAnalysis = result.data?.filter(
-                (item: Analysis) => item.patient === parseInt(patientId as string)
-            ) || [];
-            setAnalysis(patientAnalysis);
+            // const patientAnalysis = result.data?.filter(
+            //     (item: Journaling) => item.patient === parseInt(patientId as string)
+            // ) || [];
+            // console.log(result)
+            // console.log("Filtered patient analysis:", patientAnalysis)
+            setAnalysis(result);
+            console.log("Patient analysis loaded:", result);
         } catch (error: any) {
             console.error("Erro ao carregar análises do paciente:", error);
             if (error.response?.status === 401) {
                 router.push("/login");
             }
+            console.log("An error occurred while loading patient analysis:", error);
         } finally {
             setIsLoading(false);
         }
@@ -63,10 +58,10 @@ export default function PatientActivities() {
         router.back();
     };
 
-    const renderActivityCard = ({ item }: { item: Analysis }) => (
+    const renderActivityCard = ({ item }: { item: Journaling }) => (
         <ActivityCard
             activity={item}
-            onViewDetails={() => handleViewDetails(item.id.toString())}
+            onViewDetails={() => handleViewDetails(item.id!.toString())}
         />
     );
 
@@ -90,7 +85,7 @@ export default function PatientActivities() {
             ) : (
                 <FlatList
                     data={analysis}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => item.id!.toString()}
                     renderItem={renderActivityCard}
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
