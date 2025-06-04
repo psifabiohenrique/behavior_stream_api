@@ -31,20 +31,13 @@ export default function PatientActivities() {
         setIsLoading(true);
         try {
             const result = await getJournalingByPatientId(patientId.toString());
-            // Filtrar atividades do paciente específico
-            // const patientAnalysis = result.data?.filter(
-            //     (item: Journaling) => item.patient === parseInt(patientId as string)
-            // ) || [];
-            // console.log(result)
-            // console.log("Filtered patient analysis:", patientAnalysis)
+
             setAnalysis(result);
-            console.log("Patient analysis loaded:", result);
         } catch (error: any) {
             console.error("Erro ao carregar análises do paciente:", error);
             if (error.response?.status === 401) {
                 router.push("/login");
             }
-            console.log("An error occurred while loading patient analysis:", error);
         } finally {
             setIsLoading(false);
         }

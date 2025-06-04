@@ -23,14 +23,6 @@ import { StatsCard } from "@/components/StatsCard";
 import { User } from "@/models/user";
 import { Journaling } from "@/models/journaling";
 
-// type Analysis = {
-//     title: string;
-//     id: number;
-//     date: string;
-//     antecedent: string;
-//     behavior: string;
-//     consequence: string;
-// };
 
 export default function TherapistDashboard() {
     const router = useRouter();

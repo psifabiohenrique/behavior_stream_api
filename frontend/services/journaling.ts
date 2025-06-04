@@ -8,7 +8,6 @@ export const getJournaling = async () => {
 
 export const getJournalingByPatientId = async (patientId: string) => {
   const response = await api.get(`/activities/journaling/get_journaling_by_patient/?patient_id=${patientId}`);
-  console.log("Journaling activities for patient retrieved:", response.data);
   return response.data;
 };
 

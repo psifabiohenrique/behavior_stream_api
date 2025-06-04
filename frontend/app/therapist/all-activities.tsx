@@ -22,7 +22,6 @@ export default function AllActivities() {
 
     useEffect(() => {
         loadAnalysis();
-        console.log(analysis)
     }, []);
 
     const loadAnalysis = async () => {

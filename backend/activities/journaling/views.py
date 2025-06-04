@@ -41,8 +41,6 @@ class JournalingViewSet(viewsets.ModelViewSet):
         if user.role == RoleChoices.therapist:
             patient_ids = Relationship.objects.filter(therapist=user).values_list("patient", flat=True)
             if int(patient_id) not in patient_ids:
-                print(f"Patient id: {patient_id}")
-                print(f"Patients ids: {list(patient_ids)}")
                 return Response({"error": "Unauthorized access to patient data."}, status=status.HTTP_403_FORBIDDEN)
             
         journaling_data = Journaling.objects.filter(patient_id=patient_id)

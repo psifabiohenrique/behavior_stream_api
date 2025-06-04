@@ -68,8 +68,14 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Constrói a query de busca
-        queryset = User.objects.filter(role=RoleChoices.patient)
+        # Excluir apenas pacientes que já são do terapeuta atual
+        patients_of_current_therapist = Relationship.objects.filter(
+            therapist=request.user
+        ).values_list("patient_id", flat=True)
+
+        queryset = User.objects.filter(role=RoleChoices.patient).exclude(
+            id__in=patients_of_current_therapist
+        )
 
         if query:
             # Busca geral por nome ou email
