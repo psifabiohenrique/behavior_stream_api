@@ -12,6 +12,7 @@ import { getJournaling } from "@/services/journaling";
 import { theme } from "@/utils/theme";
 import { format } from "date-fns";
 import { Journaling } from "@/models/journaling";
+import { ActivityCard } from "@/components/ActivityCard";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -66,23 +67,13 @@ export default function Dashboard() {
     router.push("/patient/journaling");
   };
 
-  const renderJournalingCard = ({ item }: { item: Journaling }) => {
-    const formattedDate = item.date ? format(new Date(item.date), "dd/MM/yyyy") : "Sem data";
 
-    return (
-      <View style={styles.card}>
-        <Text style={styles.title}>{item.title || "Sem título"}</Text>
-        <Text style={styles.date}>{formattedDate}</Text>
-        <Text style={styles.resume}>{item.resume || "Sem resumo"}</Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => handleViewDetails(item.id!)}
-        >
-          <Text style={styles.buttonText}>Ver Detalhes</Text>
-        </TouchableOpacity>
-      </View>
+  const renderJournalingCard = ({ item }: { item: Journaling }) => (
+      <ActivityCard
+          activity={item}
+          onViewDetails={() => handleViewDetails(item.id!)}
+      />
     );
-  };
 
   if (!isLoggedIn) {
     return null;
